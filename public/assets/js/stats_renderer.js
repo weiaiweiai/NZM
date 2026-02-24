@@ -38,15 +38,15 @@ export function renderStats(data) {
         const rate = info.total > 0 ? ((info.win / info.total) * 100).toFixed(1) : 0;
         modeHtml += `
             <div class="matte-card mode-stat-card" style="animation: cardFloatIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; animation-delay: ${0.5 + (Math.min(modeIdx, 60) * 0.04)}s;">
-                <div class="label" style="display:flex; flex-direction:column; gap:4px; align-items:center; margin-top:8px;">
-                    <span style="font-weight:bold;">${displayName}</span>
-                    <div style="display:flex; gap:8px; font-size:0.75rem; color:var(--text-dim); justify-content:center;">
-                        <span style="color:var(--success);">通关 ${info.win}</span>
-                        <span style="color:var(--danger);">未通关 ${info.loss}</span>
-                        <span>${rate}%</span>
-                    </div>
+                <div class="label" style="font-weight:bold; color: var(--text-main); font-size: 1rem; opacity: 0.8; margin-bottom: 4px;">${displayName}</div>
+                <div class="value" style="display: flex; align-items: baseline; gap: 6px; margin-bottom: 8px;">
+                    ${info.total} <small style="font-size:0.9rem; font-weight:normal; color: var(--text-dim);">场</small>
                 </div>
-                <div class="value">${info.total} <small style="font-size:0.8rem; font-weight:normal; opacity:0.6;">场</small></div>
+                <div style="display:flex; gap:10px; font-size:0.85rem; color:var(--text-dim); margin-top: auto;">
+                    <span style="color:var(--success); font-weight: 500;">通关 ${info.win}</span>
+                    <span style="color:var(--danger); font-weight: 500;">未通关 ${info.loss}</span>
+                    <span style="opacity: 0.7;">${rate}%</span>
+                </div>
             </div>`;
         modeIdx++;
     }
@@ -286,19 +286,43 @@ export function updatePagination(totalPages) {
 function renderCheckpointTimes(partitionDetails) {
     if (!partitionDetails || partitionDetails.length === 0) return '';
     const sortedCheckpoints = [...partitionDetails].sort((a, b) => parseInt(a.areaId) - parseInt(b.areaId));
+
+    // Mobile Layout: Horizontally scrollable cards
+    if (window.innerWidth <= 768) {
+        const checkpointsHtml = sortedCheckpoints.map((checkpoint, i) => {
+            const areaName = CHECKPOINT_AREAS[checkpoint.areaId] || `区域${checkpoint.areaId}`;
+            const usedTime = parseInt(checkpoint.usedTime) || 0;
+            const timeStr = usedTime > 60 ? `${Math.floor(usedTime / 60)}分${usedTime % 60}秒` : `${usedTime}秒`;
+            return `<div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 6px 12px; display: flex; flex-direction: column; align-items: center; flex-shrink: 0; animation: cardFloatIn 0.4s ease forwards; opacity: 0; animation-delay: ${i * 0.04}s;">
+                <div style="color: #10b981; font-size: 0.72rem; white-space: nowrap;">${areaName}</div>
+                <div style="color: #e2e8f0; font-weight: bold; font-size: 0.9rem; white-space: nowrap; margin-top: 2px;">${timeStr}</div>
+            </div>`;
+        }).join('');
+        return `<div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 10px 12px; margin-bottom: 10px;">
+            <div style="font-size: 0.72rem; color: #64748b; font-weight: bold; letter-spacing: 0.06em; margin-bottom: 8px;">区域用时</div>
+            <div style="display: flex; flex-wrap: nowrap; gap: 6px; overflow-x: auto;">${checkpointsHtml}</div>
+        </div>`;
+    }
+
+    // PC Layout: Large bordered cards (as shown in screenshot)
     const checkpointsHtml = sortedCheckpoints.map((checkpoint, i) => {
         const areaName = CHECKPOINT_AREAS[checkpoint.areaId] || `区域${checkpoint.areaId}`;
         const usedTime = parseInt(checkpoint.usedTime) || 0;
         const timeStr = usedTime > 60 ? `${Math.floor(usedTime / 60)}分${usedTime % 60}秒` : `${usedTime}秒`;
-        return `<div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 6px 12px; display: flex; flex-direction: column; align-items: center; flex-shrink: 0; animation: cardFloatIn 0.4s ease forwards; opacity: 0; animation-delay: ${i * 0.04}s;">
-            <div style="color: #10b981; font-size: 0.72rem; white-space: nowrap;">${areaName}</div>
-            <div style="color: #e2e8f0; font-weight: bold; font-size: 0.9rem; white-space: nowrap; margin-top: 2px;">${timeStr}</div>
-        </div>`;
+        return `
+            <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 80px; animation: cardFloatIn 0.4s ease forwards; opacity: 0; animation-delay: ${i * 0.04}s;">
+                <div style="color: #10b981; font-size: 0.85rem; white-space: nowrap; margin-bottom: 4px;">${areaName}</div>
+                <div style="color: #e2e8f0; font-weight: bold; font-size: 1.1rem; white-space: nowrap;">${timeStr}</div>
+            </div>`;
     }).join('');
-    return `<div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 10px 12px; margin-bottom: 10px;">
-        <div style="font-size: 0.72rem; color: #64748b; font-weight: bold; letter-spacing: 0.06em; margin-bottom: 8px;">区域用时</div>
-        <div style="display: flex; flex-wrap: nowrap; gap: 6px; overflow-x: auto;">${checkpointsHtml}</div>
-    </div>`;
+
+    return `
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 14px 16px; margin-bottom: 12px;">
+            <div style="font-size: 0.85rem; color: #64748b; font-weight: bold; letter-spacing: 0.06em; margin-bottom: 12px;">区域用时</div>
+            <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                ${checkpointsHtml}
+            </div>
+        </div>`;
 }
 
 function renderEquipmentCompact(equipmentScheme, pluginsPerRow = 2) {

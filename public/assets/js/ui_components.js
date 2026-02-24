@@ -1,24 +1,25 @@
 export const dom = {
-    loginView: document.getElementById('login-view'),
-    statsView: document.getElementById('stats-view'),
-    qrImg: document.getElementById('qr-img'),
-    qrStatus: document.getElementById('qr-status'),
-    qrLoading: document.getElementById('qr-loading'),
-    qrWrapper: document.querySelector('.qr-wrapper'),
-    // Launcher Elements
-    launcherTabs: document.querySelectorAll('.launcher-tab'),
-    infoPanels: document.querySelectorAll('.info-content-panel'),
-    qqContainer: document.getElementById('qr-login-container'),
-    wechatContainer: document.getElementById('wechat-login-container'),
+    get loginView() { return document.getElementById('login-view'); },
+    get statsView() { return document.getElementById('stats-view'); },
+    get qrImg() { return document.getElementById('qr-img'); },
+    get qrStatus() { return document.getElementById('qr-status'); },
+    get qrLoading() { return document.getElementById('qr-loading'); },
+    get qrWrapper() { return document.querySelector('.qr-wrapper'); },
 
-    logoutBtn: document.getElementById('logout-btn'),
-    loading: document.getElementById('loading'),
-    errorMsg: document.getElementById('error-msg'),
-    qrOverlay: document.getElementById('qr-overlay'),
-    wxQrOverlay: document.getElementById('wx-qr-overlay'),
-    qqRefreshBtn: document.getElementById('qq-refresh-btn'),
-    wxRefreshBtn: document.getElementById('wx-refresh-btn'),
-    wxQrStatus: document.getElementById('wx-qr-status'),
+    // Launcher Elements
+    get launcherTabs() { return document.querySelectorAll('.launcher-tab'); },
+    get infoPanels() { return document.querySelectorAll('.info-content-panel'); },
+    get qqContainer() { return document.getElementById('qr-login-container'); },
+    get wechatContainer() { return document.getElementById('wechat-login-container'); },
+
+    get logoutBtn() { return document.getElementById('logout-btn'); },
+    get loading() { return document.getElementById('loading'); },
+    get errorMsg() { return document.getElementById('error-msg'); },
+    get qrOverlay() { return document.getElementById('qr-overlay'); },
+    get wxQrOverlay() { return document.getElementById('wx-qr-overlay'); },
+    get qqRefreshBtn() { return document.getElementById('qq-refresh-btn'); },
+    get wxRefreshBtn() { return document.getElementById('wx-refresh-btn'); },
+    get wxQrStatus() { return document.getElementById('wx-qr-status'); },
 
     // Tabs
     get statsTab() { return document.getElementById('stats-tab'); },
@@ -28,16 +29,16 @@ export const dom = {
     get mapsTab() { return document.getElementById('maps-tab'); },
 
     // Stats content
-    statsContent: document.getElementById('stats-content'),
-    modeStats: document.getElementById('mode-stats'),
-    mapStats: document.getElementById('map-stats'),
-    matchHistory: document.getElementById('match-history'),
-    pageInfo: document.getElementById('page-info'),
-    prevPage: document.getElementById('prev-page'),
-    nextPage: document.getElementById('next-page'),
+    get statsContent() { return document.getElementById('stats-content'); },
+    get modeStats() { return document.getElementById('mode-stats'); },
+    get mapStats() { return document.getElementById('map-stats'); },
+    get matchHistory() { return document.getElementById('match-history'); },
+    get pageInfo() { return document.getElementById('page-info'); },
+    get prevPage() { return document.getElementById('prev-page'); },
+    get nextPage() { return document.getElementById('next-page'); },
 
     // Fragment sidebar
-    fragmentList: document.getElementById('fragment-list'),
+    get fragmentList() { return document.getElementById('fragment-list'); },
 
     // Collection grids
     get weaponGrid() { return document.getElementById('weapon-grid'); },
@@ -48,19 +49,35 @@ export const dom = {
     get pluginCount() { return document.getElementById('plugin-count'); },
 
     // Official Summary
-    offHuntGames: document.getElementById('off-hunt-games'),
-    offTowerGames: document.getElementById('off-tower-games'),
-    offRankGames: document.getElementById('off-rank-games'),
-    offChaseGames: document.getElementById('off-chase-games'),
-    offPlayTime: document.getElementById('off-play-time'),
-    recentGames: document.getElementById('recent-games'),
-    recentWin: document.getElementById('recent-win'),
-    recentDmg: document.getElementById('recent-dmg'),
-    recentBossDmg: document.getElementById('recent-boss'),
+    get offHuntGames() { return document.getElementById('off-hunt-games'); },
+    get offTowerGames() { return document.getElementById('off-tower-games'); },
+    get offRankGames() { return document.getElementById('off-rank-games'); },
+    get offChaseGames() { return document.getElementById('off-chase-games'); },
+    get offPlayTime() { return document.getElementById('off-play-time'); },
+    get recentGames() { return document.getElementById('recent-games'); },
+    get recentWin() { return document.getElementById('recent-win'); },
+    get recentDmg() { return document.getElementById('recent-dmg'); },
+    get recentBossDmg() { return document.getElementById('recent-boss'); },
 
     // Sidebar Elements
-    navItems: document.querySelectorAll('.nav-item'),
-    themeToggle: document.getElementById('theme-toggle'),
+    get navItems() { return document.querySelectorAll('.nav-item'); },
+    get themeToggle() { return document.getElementById('theme-toggle'); },
+
+    // Missing update methods called in main.js
+    updateAccountInfo(profile) {
+        // Placeholder for future profile implementation if elements are added
+        console.log('[UI] updateAccountInfo called', profile);
+    },
+
+    updateOfficialSummary(summary) {
+        if (this.offHuntGames) this.offHuntGames.textContent = summary.huntGameCount || '-';
+        if (this.offTowerGames) this.offTowerGames.textContent = summary.towerGameCount || '-';
+        if (this.offRankGames) this.offRankGames.textContent = summary.mechaGameCount || '-';
+        if (this.offChaseGames) this.offChaseGames.textContent = summary.timeHuntGameCount || '-';
+        if (this.offPlayTime) {
+            this.offPlayTime.textContent = summary.playtime ? `${Math.floor(summary.playtime / 60)}时` : '-';
+        }
+    },
 
     initLauncherTabs() {
         // Elements to toggle on mobile
@@ -77,18 +94,18 @@ export const dom = {
                 if (panel) panel.classList.add('active');
 
                 // Mobile specific tab toggling
-                if (window.innerWidth <= 768) {
+                if (window.innerWidth <= 1024) { // Match CSS breakpoint 1024px
                     if (targetPanel === 'info') {
-                        // "同步登录" tab clicked
+                        // "同步登录" tab clicked on mobile
                         if (loginSide) loginSide.style.display = 'block';
                         if (infoSide) infoSide.style.display = 'none';
                     } else {
-                        // Other info tabs clicked
+                        // Other info tabs (updates, security, etc.) clicked
                         if (loginSide) loginSide.style.display = 'none';
                         if (infoSide) infoSide.style.display = 'block';
                     }
                 } else {
-                    // Reset to desktop default in case of resize
+                    // Reset to desktop default in case of resize or on larger screens
                     if (loginSide) loginSide.style.display = '';
                     if (infoSide) infoSide.style.display = '';
                 }
@@ -97,22 +114,9 @@ export const dom = {
 
         // Window resize listener to reset visibility
         window.addEventListener('resize', () => {
-            if (window.innerWidth > 768) {
+            if (window.innerWidth > 1024) {
                 if (loginSide) loginSide.style.display = '';
                 if (infoSide) infoSide.style.display = '';
-            } else {
-                // Determine current active tab on resize down to mobile
-                const activeTab = document.querySelector('.launcher-tab.active');
-                if (activeTab) {
-                    const target = activeTab.getAttribute('data-launcher-tab');
-                    if (target === 'info') {
-                        if (loginSide) loginSide.style.display = 'block';
-                        if (infoSide) infoSide.style.display = 'none';
-                    } else {
-                        if (loginSide) loginSide.style.display = 'none';
-                        if (infoSide) infoSide.style.display = 'block';
-                    }
-                }
             }
         });
     }

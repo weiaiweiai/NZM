@@ -5,9 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NZM 数据统计</title>
-    <meta name="referrer" content="no-referrer" />
-    <link rel="stylesheet" href="style.css?v=38">
-    <link rel="stylesheet" href="assets/css/launcher.css?v=38">
+    <link rel="stylesheet" href="style.css?v=51">
+    <link rel="stylesheet" href="assets/css/launcher.css?v=51">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <!-- Umami Analytics -->
     <script defer src="http://154.222.30.217:2345/script.js"
@@ -147,6 +146,19 @@
                             <div class="launcher-method-tabs">
                                 <div id="method-qq-tab" class="method-tab active">QQ登录</div>
                                 <div id="method-wechat-tab" class="method-tab">微信登录</div>
+                            </div>
+
+                            <!-- Node Selector -->
+                            <div class="node-selector">
+                                <span class="node-label">登录节点：</span>
+                                <div class="node-toggle">
+                                    <div id="node-cf" class="node-btn node-cf active" title="Cloudflare 全球边缘网络">
+                                        <span class="node-dot"></span>Cloudflare
+                                    </div>
+                                    <div id="node-cn" class="node-btn node-cn" title="上海阿里云 (国内节点)">
+                                        <span class="node-dot"></span>上海阿里云
+                                    </div>
+                                </div>
                             </div>
 
                             <!-- QQ Login Container -->
@@ -312,7 +324,7 @@
                                             <button id="gen-share-img-btn" class="header-action-btn">生成分享图</button>
                                         </div>
                                     </div>
-                                    <div class="stats-grid-row">
+                                    <div class="stats-grid-row official-totals">
                                         <div class="matte-card animate-float-in" style="animation-delay: 0.1s;">
                                             <span class="label">僵尸猎场总场次</span>
                                             <span id="off-hunt-games" class="value">-</span>
@@ -358,7 +370,7 @@
                                             <span id="recent-dmg" class="value">-</span>
                                         </div>
                                         <div class="matte-card animate-float-in" style="animation-delay: 0.45s;">
-                                            <span class="label">场均BOSS伤害<br>(近10场)</span>
+                                            <span class="label">场均BOSS伤害(近10场)</span>
                                             <span id="recent-boss" class="value">-</span>
                                         </div>
                                     </div>

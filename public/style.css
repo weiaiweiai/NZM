@@ -10,6 +10,11 @@
     --danger: #c45c4b;
     --gold-gradient: linear-gradient(135deg, #d4a84b 0%, #c49a3d 50%, #a67c2e 100%);
     --font-main: 'Roboto', sans-serif;
+
+    /* PC Design Variables (Restored) */
+    --text-main: #f1f5f9;
+    --text-dim: #94a3b8;
+    --accent-gold: #d4a84b;
 }
 
 * {
@@ -2215,6 +2220,141 @@ body::-webkit-scrollbar {
     border-color: rgba(255, 105, 180, 0.5);
     transform: translateY(-2px);
     box-shadow: 0 2px 6px rgba(255, 105, 180, 0.2);
+}
+
+/* ========================================================= */
+/* PC Base Styles for Stats Layout (Restored)                */
+/* ========================================================= */
+.stats-grid-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.25rem;
+    align-items: stretch;
+}
+
+.matte-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 1.1rem 1.25rem;
+    /* Reduced padding from 1.5rem 1.75rem */
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    /* Reduced gap */
+    backdrop-filter: blur(10px) !important;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+    text-align: left;
+}
+
+.matte-card:hover {
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+}
+
+.official-totals {
+    grid-template-columns: repeat(5, 230px) !important;
+    justify-content: start;
+}
+
+.recent-records {
+    grid-template-columns: repeat(5, 230px) !important;
+    justify-content: start;
+}
+
+.recent-analysis {
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+}
+
+.map-distribution {
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+}
+
+.map-distribution .matte-card {
+    min-height: 240px;
+    position: relative;
+    overflow: hidden;
+}
+
+.matte-card .label {
+    font-size: 0.85rem;
+    /* Slightly smaller label */
+    color: var(--text-dim);
+    font-weight: normal;
+    text-transform: none;
+    letter-spacing: normal;
+}
+
+.matte-card .value {
+    font-size: 2rem;
+    /* Matches screenshot "15 场" / "513" scale */
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.mode-stat-card .value {
+    font-size: 1.75rem;
+}
+
+.master-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.master-section-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.master-indicator {
+    width: 4px;
+    height: 22px;
+    background: #d4a84b;
+    border-radius: 2px;
+}
+
+.master-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+}
+
+.master-subtitle {
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    font-weight: normal;
+}
+
+.header-action-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #f3f4f6;
+    padding: 0 12px;
+    height: 36px;
+    min-width: 110px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    box-sizing: border-box;
+    cursor: pointer;
+}
+
+.header-action-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.header-action-btn:active {
+    background: rgba(255, 255, 255, 0.03);
 }
 
 /* ========================================================= */

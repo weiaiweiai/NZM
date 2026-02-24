@@ -26,13 +26,13 @@ export default {
         try {
             let response;
             if (path.startsWith('/api/auth/wx-qr')) {
-                response = await handleWxQR(request);
+                response = await handleWxQR(request, env);
             } else if (path.startsWith('/api/auth/wx-check')) {
-                response = await handleWxCheck(request);
+                response = await handleWxCheck(request, env);
             } else if (path.startsWith('/api/auth/qr')) {
-                response = await handleAuthQR(request);
+                response = await handleAuthQR(request, env);
             } else if (path.startsWith('/api/auth/check')) {
-                response = await handleAuthCheck(request);
+                response = await handleAuthCheck(request, env);
             } else if (path.startsWith('/api/stats')) {
                 response = await handleStats(request);
             } else if (path.startsWith('/api/detail')) {
