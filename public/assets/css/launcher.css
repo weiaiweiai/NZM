@@ -151,6 +151,13 @@
     animation: contentFadeIn 0.4s ease;
 }
 
+/* Desktop-only overrides */
+@media (min-width: 769px) {
+    .login-info-text {
+        display: none !important;
+    }
+}
+
 .info-content-panel.active {
     display: block;
 }
@@ -878,6 +885,7 @@
     cursor: pointer;
     transition: all 0.2s ease;
     font-family: inherit;
+    white-space: nowrap;
 }
 
 .matte-btn:hover:not(:disabled) {
@@ -900,6 +908,7 @@
 .page-jump-label {
     color: var(--text-dim, rgba(255, 255, 255, 0.5));
     font-size: 0.85rem;
+    white-space: nowrap;
 }
 
 .page-jump-input {

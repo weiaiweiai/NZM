@@ -18,12 +18,29 @@
     padding: 0;
 }
 
+#stats-view .hidden {
+    display: none !important;
+}
+
 body {
     background-color: var(--bg-color);
     color: var(--text-primary);
     font-family: var(--font-main);
     line-height: 1.5;
     min-height: 100vh;
+    overflow-x: hidden;
+    /* Prevent horizontal gap on mobile */
+    width: 100%;
+    /* Hide scrollbar but keep scrolling */
+    scrollbar-width: none;
+    /* Firefox */
+    -ms-overflow-style: none;
+    /* IE/Edge */
+}
+
+body::-webkit-scrollbar {
+    display: none;
+    /* Chrome/Safari/Opera */
 }
 
 #bg-layer {
@@ -2198,4 +2215,605 @@ body {
     border-color: rgba(255, 105, 180, 0.5);
     transform: translateY(-2px);
     box-shadow: 0 2px 6px rgba(255, 105, 180, 0.2);
+}
+
+/* ========================================================= */
+/* MOBILE WEB OVERRIDES                                      */
+/* ========================================================= */
+@media (max-width: 768px) {
+
+    /* Layout Reset */
+    .stats-main-layout:not(.hidden) {
+        display: flex !important;
+        flex-direction: column !important;
+        overflow-y: scroll !important;
+        overflow-x: hidden !important;
+        height: 100vh !important;
+        width: 100% !important;
+        scrollbar-width: none !important;
+        /* Firefox */
+        -ms-overflow-style: none !important;
+        /* IE/Edge */
+    }
+
+    .stats-main-layout:not(.hidden)::-webkit-scrollbar {
+        display: none !important;
+        /* Chrome/Safari/Opera */
+    }
+
+    /* Mobile Login Page Layout */
+    .login-layout {
+        flex-direction: column !important;
+        gap: 1.5rem !important;
+    }
+
+    .launcher-container {
+        padding: 1rem !important;
+        height: auto !important;
+        min-height: 100vh !important;
+        overflow-y: auto !important;
+        align-items: flex-start !important;
+    }
+
+    .launcher-login-side,
+    .launcher-info-side {
+        width: 100% !important;
+        max-width: 100% !important;
+        border-radius: 16px !important;
+        order: 1 !important;
+        min-height: 590px !important;
+        /* Forces consistent height across tabs */
+    }
+
+    /* Compress vertical gaps on mobile login page */
+    .login-status-area {
+        height: 30px !important;
+        margin-top: -10px !important;
+        /* Move text up closer to QR code */
+    }
+
+    .login-info-text {
+        margin-top: -5px !important;
+        /* Move card up closer to text */
+    }
+
+    /* Initially hide the info side on mobile via CSS (JS will handle toggles) */
+    .launcher-info-side {
+        display: none;
+    }
+
+    /* Completely hide the redundant "关于本工具" (#panel-info) text on mobile */
+    #panel-info {
+        display: none !important;
+    }
+
+    /* Change '工具说明' tab to '同步登录' on mobile ONLY */
+    .launcher-tab[data-launcher-tab="info"] {
+        font-size: 0 !important;
+        /* Hide original text */
+    }
+
+    .launcher-tab[data-launcher-tab="info"]::after {
+        content: "同步登录";
+        font-size: 0.95rem;
+        /* Restore font size for new text */
+    }
+
+    /* Horizontal scrollable tabs for mobile login */
+    .launcher-header-tabs {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        padding: 10px 15px !important;
+        gap: 8px !important;
+        /* Hide scrollbar for cleaner look */
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+
+    .launcher-header-tabs::-webkit-scrollbar {
+        display: none;
+    }
+
+    .launcher-tab {
+        flex: 0 0 auto !important;
+        /* Prevent tabs from shrinking */
+        padding: 8px 16px !important;
+        font-size: 0.85rem !important;
+        white-space: nowrap !important;
+    }
+
+    .stats-container {
+        padding: 0 !important;
+        height: auto !important;
+        overflow: visible !important;
+        width: 100% !important;
+    }
+
+    /* Make the dark frosted glass panel fill full screen width on mobile */
+    .stats-master-card {
+        padding: 16px 12px !important;
+        border-radius: 0 !important;
+        margin: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        box-shadow: none !important;
+    }
+
+    /* Mobile Header */
+    .mobile-header {
+        display: flex !important;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 16px;
+        background: #1e1e24;
+        /* Darker header */
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        width: 100%;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        flex-shrink: 0;
+    }
+
+    .mobile-menu-btn {
+        background: transparent;
+        border: none;
+        color: #e2e8f0;
+        cursor: pointer;
+        padding: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .mobile-header-title {
+        font-weight: bold;
+        font-size: 1.1rem;
+        color: #e2e8f0;
+    }
+
+    /* Sidebar Off-canvas Drawer Mode */
+    .stats-sidebar {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        height: 100vh !important;
+        width: 280px !important;
+        z-index: 100 !important;
+        transform: translateX(-100%) !important;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        background: rgba(26, 26, 36, 0.98) !important;
+        backdrop-filter: blur(10px) !important;
+        box-shadow: 4px 0 20px rgba(0, 0, 0, 0.5) !important;
+    }
+
+    .stats-sidebar.mobile-open {
+        transform: translateX(0) !important;
+    }
+
+    .mobile-sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.6);
+        z-index: 90;
+        backdrop-filter: blur(2px);
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+
+    .mobile-sidebar-overlay.active {
+        display: block;
+        opacity: 1;
+    }
+
+    /* Hide large layout logo */
+    .sidebar-top>div:first-child {
+        display: none !important;
+    }
+
+    /* Center nav text on mobile */
+    .sidebar-nav {
+        margin-top: 1rem !important;
+    }
+
+    /* Mobile Stats Dashboard Layout */
+    .stats-right-column {
+        display: none !important;
+        /* Hide weapon fragments on mobile */
+    }
+
+    .stats-left-column {
+        width: 100% !important;
+        /* Expand main data to full width */
+        padding-right: 0 !important;
+        border-right: none !important;
+    }
+
+    /* Console-style Grid (No Cards) on Mobile */
+    .stats-grid-row {
+        display: grid !important;
+        grid-template-columns: repeat(auto-fit, minmax(30%, 1fr)) !important;
+        gap: 10px 8px !important;
+        border-top: 1px solid rgba(255, 255, 255, 0.05) !important;
+        padding-top: 10px !important;
+        margin-top: 2px !important;
+    }
+
+    #sponsor-list {
+        grid-template-columns: repeat(4, 1fr) !important;
+        gap: 6px !important;
+    }
+
+    .stats-grid-row.hidden,
+    .hidden {
+        display: none !important;
+    }
+
+    /* Override for map distribution to prevent vertical stretching */
+    .stats-grid-row.map-distribution {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 8px !important;
+    }
+
+    /* Adjust map background cards for fixed 4-line height */
+    .map-card-with-bg,
+    .matte-card.map-card-with-bg {
+        flex-direction: column !important;
+        justify-content: flex-start !important;
+        /* Start from top so empty space is at bottom */
+        align-items: center !important;
+        padding: 8px 12px 8px 12px !important;
+        min-height: auto !important;
+        height: 155px !important;
+        /* Fixed height for exactly 4 difficulty rows */
+    }
+
+    /* Brighten map backgrounds on mobile by 10% */
+    .map-card-with-bg .map-bg-layer {
+        opacity: 0.45 !important;
+        /* Default was 0.35 */
+    }
+
+    /* Map Name */
+    .map-card-with-bg .value {
+        font-size: 1.3rem !important;
+        text-align: center !important;
+        white-space: normal !important;
+        margin-bottom: 0 !important;
+        width: 100% !important;
+    }
+
+    /* Overall rate line */
+    .map-card-with-bg>div:nth-of-type(2)>div:nth-child(2) {
+        font-size: 0.85rem !important;
+        margin-bottom: 2px !important;
+        text-align: center !important;
+        width: 100% !important;
+    }
+
+    /* Compact the difficulty stats vertically */
+    .map-card-with-bg .map-diffs {
+        display: block !important;
+        padding-top: 4px !important;
+        border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+        margin-top: 4px !important;
+        width: 100% !important;
+    }
+
+    .map-card-with-bg .map-diffs>div {
+        font-size: 0.8rem !important;
+        line-height: 1.3 !important;
+        margin-top: 2px !important;
+        color: rgba(255, 255, 255, 0.95) !important;
+        /* Brighter color */
+        font-weight: 500 !important;
+        /* Slight bump in weight */
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8), 0 1px 1px #000 !important;
+        /* Make text pop against backgrounds */
+    }
+
+    /* Strip all card styling for raw console look */
+    .data-card,
+    .matte-card {
+        background: rgba(255, 255, 255, 0.03) !important;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        padding: 12px 6px !important;
+        min-width: 0 !important;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2) !important;
+        border-radius: 8px !important;
+        display: flex !important;
+        flex-direction: column-reverse !important;
+        /* Put value on top, label on bottom */
+        align-items: center !important;
+        justify-content: center !important;
+        overflow: hidden !important;
+        /* Prevent internal content from blowing up width */
+    }
+
+    .data-card .label,
+    .matte-card .label {
+        font-size: clamp(0.6rem, 2.5vw, 0.75rem) !important;
+        color: #94a3b8 !important;
+        white-space: normal !important;
+        /* Allow wrapping if absolutely needed instead of cutting off */
+        display: block;
+        width: 100%;
+        text-align: center !important;
+        margin-top: 4px !important;
+        line-height: 1.2 !important;
+    }
+
+    .data-card .value,
+    .matte-card .value {
+        font-size: clamp(0.75rem, 3.8vw, 1.3rem) !important;
+        /* Scale text linearly with screen size */
+        font-weight: 700 !important;
+        color: #f8fafc !important;
+        margin-top: 0 !important;
+        text-align: center !important;
+        line-height: 1.1 !important;
+        white-space: nowrap;
+        width: 100%;
+    }
+
+    /* Slightly adjust value size for mode stats to avoid stretching */
+    .mode-stat-card .value {
+        font-size: clamp(1rem, 5vw, 1.5rem) !important;
+    }
+
+    /* Reflow the Section Header - keep indicator + title in a row, wrap actions below */
+    .master-section-header {
+        flex-direction: row !important;
+        flex-wrap: wrap !important;
+        align-items: center !important;
+        gap: 8px !important;
+        margin-bottom: 0 !important;
+    }
+
+    /* Tighten section gap */
+    .master-section {
+        gap: 0.5rem !important;
+        margin-bottom: 0.5rem !important;
+    }
+
+    .master-title {
+        white-space: nowrap !important;
+    }
+
+    .header-actions {
+        margin-left: 0 !important;
+        width: 100% !important;
+    }
+
+    /* Match History Mobile Fixes to prevent vertical text stacking and expand full width */
+    #stats-view {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+
+    #history-tab .stats-container,
+    #history-tab .stats-left-column,
+    #history-tab .master-section {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        width: 100% !important;
+    }
+
+    #history-tab .master-section-header {
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+    }
+
+    .match-history-list {
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    .match-item {
+        border-radius: 0 !important;
+        margin: 0 !important;
+        border-left: none !important;
+        border-right: none !important;
+        background: rgba(0, 0, 0, 0.4) !important;
+        /* Make it a distinct full-width block */
+        border-bottom: 2px solid rgba(0, 0, 0, 0.6) !important;
+        width: 100% !important;
+    }
+
+    .match-content-row {
+        padding: 16px 16px !important;
+        /* Restore some inner padding now that outer padding is gone */
+        gap: 8px !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        align-items: center !important;
+        width: 100% !important;
+    }
+
+    .match-thumb {
+        width: 60px !important;
+        height: 36px !important;
+        flex-shrink: 0 !important;
+    }
+
+    .match-info-center {
+        padding-right: 0 !important;
+        flex: 1 1 auto !important;
+        min-width: 0 !important;
+        /* Allow flex shrinking without exploding */
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 2px !important;
+    }
+
+    .match-info-top,
+    .match-info-bottom {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        flex-wrap: wrap !important;
+        /* Allow wrapping so text is never hidden */
+        width: 100% !important;
+        gap: 4px !important;
+    }
+
+    .match-result-text {
+        font-size: 0.9rem !important;
+    }
+
+    .match-mode-text {
+        font-size: 0.8rem !important;
+    }
+
+    .match-map-name {
+        font-size: 0.8rem !important;
+    }
+
+    .match-date {
+        font-size: 0.75rem !important;
+    }
+
+    /* Completely hide the expand/collapse toggle on mobile */
+    .match-toggle-btn {
+        display: none !important;
+    }
+
+    .match-info-right {
+        min-width: 0 !important;
+        padding-right: 0 !important;
+        /* No more arrow to reserve space for */
+        flex-shrink: 0 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: flex-end !important;
+    }
+
+    .match-score-text {
+        font-size: 0.95rem !important;
+    }
+
+
+    .match-duration-text {
+        font-size: 0.75rem !important;
+    }
+
+    /* Pagination mobile compact */
+    .history-pagination {
+        gap: 6px !important;
+        padding: 0.75rem 8px !important;
+        margin-top: 0.5rem !important;
+    }
+
+    .matte-btn {
+        padding: 7px 12px !important;
+        font-size: 0.78rem !important;
+    }
+
+    .page-jump-group {
+        gap: 4px !important;
+    }
+
+    .page-jump-label {
+        font-size: 0.78rem !important;
+    }
+
+    .page-jump-input {
+        width: 46px !important;
+        font-size: 0.78rem !important;
+        padding: 5px 4px !important;
+    }
+}
+
+/* Default PC state for mobile elements */
+.mobile-header {
+    display: none;
+}
+
+.mobile-sidebar-overlay {
+    display: none;
+}
+
+/* ============ Match Detail Slide Page ============ */
+.match-detail-page {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(10, 10, 14, 0.97);
+    backdrop-filter: blur(12px);
+    z-index: 200;
+    transform: translateX(100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior: none;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.match-detail-page::-webkit-scrollbar {
+    display: none;
+}
+
+.match-detail-page.active {
+    transform: translateX(0);
+}
+
+.match-detail-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: rgba(15, 15, 20, 0.9);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    flex-shrink: 0;
+}
+
+.match-detail-back-btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: none;
+    border: none;
+    color: #e2e8f0;
+    font-size: 0.95rem;
+    cursor: pointer;
+    padding: 6px 10px;
+    border-radius: 6px;
+    transition: background 0.2s;
+}
+
+.match-detail-back-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.match-detail-title {
+    color: #e2e8f0;
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.match-detail-summary {
+    padding: 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    flex-shrink: 0;
+}
+
+.match-detail-content {
+    padding: 16px;
+    flex: 1;
 }

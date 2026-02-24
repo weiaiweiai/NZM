@@ -28,7 +28,7 @@ export function renderWeapons(weapons, filterQuality = 'all') {
 }
 
 export function renderTraps(traps) {
-    if (!traps) return;
+    if (!traps || !dom.trapGrid) return;
     dom.trapGrid.innerHTML = traps.map((t, i) => `
         <div class="collection-item ${t.owned ? '' : 'not-owned'}" style="position: relative; animation: cardFloatIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; animation-delay: ${0.2 + (Math.min(i, 100) * 0.02)}s;">
             <div style="position: absolute; top: 8px; left: 8px; background: ${t.owned ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)'}; color: ${t.owned ? '#10b981' : '#ef4444'}; font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; border: 1px solid ${t.owned ? 'rgba(16, 185, 129, 0.3)' : 'rgba(239, 68, 68, 0.3)'}; z-index: 2;">${t.owned ? '已拥有' : '未拥有'}</div>
@@ -40,7 +40,7 @@ export function renderTraps(traps) {
 }
 
 export function renderPlugins(plugins, filterSlot = 'all') {
-    if (!plugins) return;
+    if (!plugins || !dom.pluginGrid) return;
     const filtered = filterSlot === 'all' ? plugins : plugins.filter(p => p.slotIndex == filterSlot);
     dom.pluginGrid.innerHTML = filtered.map((p, i) => `
         <div class="collection-item ${p.owned ? '' : 'not-owned'}" data-slot="${p.slotIndex}" style="animation: cardFloatIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; animation-delay: ${0.2 + (Math.min(i, 100) * 0.02)}s;">
@@ -53,7 +53,8 @@ export function renderPlugins(plugins, filterSlot = 'all') {
 }
 
 export function renderFragments(fragments) {
-    if (!fragments || fragments.length === 0) {
+    if (!fragments || !dom.fragmentList) return;
+    if (fragments.length === 0) {
         dom.fragmentList.innerHTML = '<p style="color:#888;font-size:0.9rem;">暂无碎片进度</p>';
         return;
     }

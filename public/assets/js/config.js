@@ -155,4 +155,4 @@ export const DIFF_NAME = {
     '8': '折磨III', '9': '折磨IV', '10': '折磨V', '11': '折磨VI'
 };
 
-export const ITEMS_PER_PAGE = 12;
+export const ITEMS_PER_PAGE = window.innerWidth <= 768 ? 5 : 12;

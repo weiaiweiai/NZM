@@ -63,6 +63,10 @@ export const dom = {
     themeToggle: document.getElementById('theme-toggle'),
 
     initLauncherTabs() {
+        // Elements to toggle on mobile
+        const loginSide = document.querySelector('.launcher-login-side');
+        const infoSide = document.querySelector('.launcher-info-side');
+
         this.launcherTabs.forEach(tab => {
             tab.addEventListener('click', () => {
                 const targetPanel = tab.getAttribute('data-launcher-tab');
@@ -71,7 +75,45 @@ export const dom = {
                 this.infoPanels.forEach(p => p.classList.remove('active'));
                 const panel = document.getElementById(`panel-${targetPanel}`);
                 if (panel) panel.classList.add('active');
+
+                // Mobile specific tab toggling
+                if (window.innerWidth <= 768) {
+                    if (targetPanel === 'info') {
+                        // "同步登录" tab clicked
+                        if (loginSide) loginSide.style.display = 'block';
+                        if (infoSide) infoSide.style.display = 'none';
+                    } else {
+                        // Other info tabs clicked
+                        if (loginSide) loginSide.style.display = 'none';
+                        if (infoSide) infoSide.style.display = 'block';
+                    }
+                } else {
+                    // Reset to desktop default in case of resize
+                    if (loginSide) loginSide.style.display = '';
+                    if (infoSide) infoSide.style.display = '';
+                }
             });
+        });
+
+        // Window resize listener to reset visibility
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 768) {
+                if (loginSide) loginSide.style.display = '';
+                if (infoSide) infoSide.style.display = '';
+            } else {
+                // Determine current active tab on resize down to mobile
+                const activeTab = document.querySelector('.launcher-tab.active');
+                if (activeTab) {
+                    const target = activeTab.getAttribute('data-launcher-tab');
+                    if (target === 'info') {
+                        if (loginSide) loginSide.style.display = 'block';
+                        if (infoSide) infoSide.style.display = 'none';
+                    } else {
+                        if (loginSide) loginSide.style.display = 'none';
+                        if (infoSide) infoSide.style.display = 'block';
+                    }
+                }
+            }
         });
     }
 };
@@ -223,6 +265,14 @@ export function switchStatsTab(tabId, onSwitch) {
         }
     });
 
+    // Auto-close sidebar on mobile after clicking
+    if (window.innerWidth <= 768) {
+        const sidebar = document.querySelector('.stats-sidebar');
+        const overlay = document.getElementById('mobile-sidebar-overlay');
+        if (sidebar) sidebar.classList.remove('mobile-open');
+        if (overlay) overlay.classList.remove('active');
+    }
+
     // Hide all tabs first
     if (dom.statsTab) dom.statsTab.classList.add('hidden');
     if (dom.collectionTab) dom.collectionTab.classList.add('hidden');
@@ -341,16 +391,17 @@ export function renderSponsors() {
         columns = gridStyle.gridTemplateColumns.split(' ').length || 1;
     }
 
-    // The user requested exactly '13 rows' per page
-    const sponsorsPerPage = columns * 13;
+    // Mobile: 10 rows, PC: 15 rows
+    const rowsPerPage = window.innerWidth <= 768 ? 10 : 15;
+    const sponsorsPerPage = columns * rowsPerPage;
 
     const start = (currentSponsorPage - 1) * sponsorsPerPage;
     const end = start + sponsorsPerPage;
     const pageData = sponsorsData.slice(start, end);
 
     list.innerHTML = pageData.map((name, i) =>
-        `<div class="matte-card" style="display:flex; flex-direction:row; align-items:center; justify-content:center; padding:1.25rem 1.5rem; gap:16px; animation: cardFloatIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; animation-delay: ${Math.min(i, 100) * 0.02}s;">
-            <span class="value" style="font-size:1.1rem; color:var(--text-main); font-weight:600;">${name}</span>
+        `<div class="matte-card" style="display:flex; flex-direction:row; align-items:center; justify-content:center; padding:0.75rem 1rem; animation: cardFloatIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; animation-delay: ${Math.min(i, 40) * 0.02}s;">
+            <span class="value" style="font-size:0.95rem; color:var(--text-main); font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${name}</span>
         </div>`
     ).join('');
 
