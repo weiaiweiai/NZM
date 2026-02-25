@@ -310,17 +310,19 @@ function renderCheckpointTimes(partitionDetails) {
         const usedTime = parseInt(checkpoint.usedTime) || 0;
         const timeStr = usedTime > 60 ? `${Math.floor(usedTime / 60)}分${usedTime % 60}秒` : `${usedTime}秒`;
         return `
-            <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 80px; animation: cardFloatIn 0.4s ease forwards; opacity: 0; animation-delay: ${i * 0.04}s;">
-                <div style="color: #10b981; font-size: 0.85rem; white-space: nowrap; margin-bottom: 4px;">${areaName}</div>
-                <div style="color: #e2e8f0; font-weight: bold; font-size: 1.1rem; white-space: nowrap;">${timeStr}</div>
+            <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 16px 32px; display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 140px; animation: cardFloatIn 0.4s ease forwards; opacity: 0; animation-delay: ${i * 0.04}s;">
+                <div style="color: #10b981; font-size: 1.05rem; white-space: nowrap; margin-bottom: 6px;">${areaName}</div>
+                <div style="color: #e2e8f0; font-weight: bold; font-size: 1.5rem; white-space: nowrap;">${timeStr}</div>
             </div>`;
     }).join('');
 
     return `
-        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 14px 16px; margin-bottom: 12px;">
-            <div style="font-size: 0.85rem; color: #64748b; font-weight: bold; letter-spacing: 0.06em; margin-bottom: 12px;">区域用时</div>
-            <div style="display: flex; flex-wrap: wrap; gap: 10px;">
-                ${checkpointsHtml}
+        <div style="display: flex; justify-content: center;">
+            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 20px 24px; margin-bottom: 16px; display: inline-block;">
+                <div style="font-size: 1rem; color: #64748b; font-weight: bold; letter-spacing: 0.06em; margin-bottom: 16px; text-align: center;">区域用时</div>
+                <div style="display: flex; flex-wrap: wrap; gap: 16px; justify-content: center;">
+                    ${checkpointsHtml}
+                </div>
             </div>
         </div>`;
 }
@@ -423,21 +425,25 @@ function renderMatchDetailPC(data, container, mode) {
             <div class="matte-card" data-player-id="${playerId}" style="padding: 12px 14px; animation: cardFloatIn 0.4s ease forwards; opacity: 0; animation-delay: ${idx * 0.06}s;">
                 <div id="stats-${playerId}" class="player-view">
                     <div style="display:flex; align-items:center; gap:0.75rem;">
-                        <img src="${decodeURIComponent(p.avatar)}" style="width:44px; height:44px; border-radius:50%; object-fit:cover; background:#333; flex-shrink:0;" onerror="this.src='images/maps-304.png'">
+                        <img src="${decodeURIComponent(p.avatar)}" loading="lazy" style="width:44px; height:44px; border-radius:50%; object-fit:cover; background:#333; flex-shrink:0;" onerror="this.src='images/maps-304.png'">
                         <div style="display:flex; flex-direction:column; overflow:hidden; flex:1;">
-                            <div style="font-weight:bold; font-size:1.1rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:0.25rem;">${decodeURIComponent(p.nickname)}</div>
-                            <div style="display:flex; gap:1rem; font-size:1.05rem; flex-wrap:wrap;">
-                                <span>积分: ${formatNumber(info.iScore)}</span>
-                                <span>击杀: ${info.iKills}</span>
-                                <span>死亡: ${info.iDeaths}</span>
-                                ${hasExtra ? `<span style="color:#ef4444;">Boss伤: ${formatNumber(hunt.damageTotalOnBoss || hunt.DamageTotalOnBoss || 0)}</span><span style="color:#10b981;">小怪伤: ${formatNumber(hunt.damageTotalOnMobs || hunt.DamageTotalOnMobs || 0)}</span><span style="color:#d4a84b;">金币: ${formatNumber(hunt.totalCoin || 0)}</span>` : ''}
+                            <div style="font-weight:bold; font-size:1.05rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:0.35rem;" title="${decodeURIComponent(p.nickname)}">${decodeURIComponent(p.nickname)}</div>
+                            <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap: 6px 4px; font-size:0.95rem; align-items: center;">
+                                <span style="white-space:nowrap;">积分: ${formatNumber(info.iScore)}</span>
+                                <span style="white-space:nowrap;">击杀: ${info.iKills}</span>
+                                <span style="white-space:nowrap;">死亡: ${info.iDeaths}</span>
+                                ${hasExtra ? `
+                                <span style="color:#ef4444; white-space:nowrap;">Boss伤: <span style="font-size:0.85em;">${formatNumber(hunt.damageTotalOnBoss || hunt.DamageTotalOnBoss || 0)}</span></span>
+                                <span style="color:#10b981; white-space:nowrap;">小怪伤: <span style="font-size:0.85em;">${formatNumber(hunt.damageTotalOnMobs || hunt.DamageTotalOnMobs || 0)}</span></span>
+                                <span style="color:#d4a84b; white-space:nowrap;">金币: <span style="font-size:0.85em;">${formatNumber(hunt.totalCoin || 0)}</span></span>
+                                ` : ''}
                             </div>
                         </div>
                     </div>
                 </div>
                 <div id="equipment-${playerId}" class="player-view hidden">
                     <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:10px;">
-                        <img src="${decodeURIComponent(p.avatar)}" style="width:36px; height:36px; border-radius:50%; object-fit:cover; background:#333;" onerror="this.src='images/maps-304.png'">
+                        <img src="${decodeURIComponent(p.avatar)}" loading="lazy" style="width:36px; height:36px; border-radius:50%; object-fit:cover; background:#333;" onerror="this.src='images/maps-304.png'">
                         <span style="font-weight:bold; font-size:0.95rem;">${decodeURIComponent(p.nickname)}</span>
                     </div>
                     ${renderEquipmentCompact(p.equipmentScheme, 2)}
@@ -452,7 +458,7 @@ function renderMatchDetailPC(data, container, mode) {
             <div id="stats-self" class="player-view">
                 <div style="display:flex; gap:1rem; align-items:center;">
                     <div style="flex-shrink:0; text-align:center;">
-                        <img src="${decodeURIComponent(self.avatar)}" style="width:56px; height:56px; border-radius:50%; border:2px solid var(--accent);">
+                        <img src="${decodeURIComponent(self.avatar)}" loading="lazy" style="width:56px; height:56px; border-radius:50%; border:2px solid var(--accent);">
                         <div style="font-weight:bold; margin-top:0.25rem; font-size:1rem;">${decodeURIComponent(self.nickname)}</div>
                     </div>
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 0.6rem; flex-grow: 1;">
@@ -469,7 +475,7 @@ function renderMatchDetailPC(data, container, mode) {
             </div>
             <div id="equipment-self" class="player-view hidden">
                 <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:10px;">
-                    <img src="${decodeURIComponent(self.avatar)}" style="width:36px; height:36px; border-radius:50%; object-fit:cover; border:2px solid var(--accent);">
+                    <img src="${decodeURIComponent(self.avatar)}" loading="lazy" style="width:36px; height:36px; border-radius:50%; object-fit:cover; border:2px solid var(--accent);">
                     <span style="font-weight:bold; font-size:0.95rem;">${decodeURIComponent(self.nickname)}</span>
                 </div>
                 ${renderEquipmentCompact(self.equipmentScheme, 4)}
@@ -503,7 +509,7 @@ function playerCardHtml(p, idx, showExtra, isSelf) {
         <div class="matte-card" style="padding: 12px 14px; ${selfBorder} animation: cardFloatIn 0.4s ease forwards; opacity: 0; animation-delay: ${idx * 0.05}s;">
             <div style="display: flex; align-items: center; gap: 12px;">
                 <div style="flex-shrink: 0; text-align: center; width: 52px;">
-                    <img src="${avatar}" style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover; background: #333; ${isSelf ? 'border: 2px solid #d4a84b;' : ''}" onerror="this.src='images/maps-304.png'">
+                    <img src="${avatar}" loading="lazy" style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover; background: #333; ${isSelf ? 'border: 2px solid #d4a84b;' : ''}" onerror="this.src='images/maps-304.png'">
                     <div style="font-size: 0.72rem; color: ${isSelf ? '#d4a84b' : '#94a3b8'}; margin-top: 3px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; max-width: 52px; word-break: break-all; line-height: 1.3;">${nickname}</div>
                 </div>
                 <div style="flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px 4px; align-items: center;">

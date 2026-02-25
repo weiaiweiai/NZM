@@ -12,7 +12,8 @@
     <script defer src="http://154.222.30.217:2345/script.js"
         data-website-id="f4036759-b32e-4ebb-b0d8-3cbb1208fab3"></script>
     <!-- HTML2Canvas for generating share image -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- Use domestic staticfile CDN for html2canvas because cdnjs often fails in China -->
+    <script src="https://cdn.staticfile.net/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 
 <body>
@@ -57,6 +58,8 @@
                                         <span class="update-date">2026.02.25</span>
                                         <ul>
                                             <li>添加上海阿里云登录节点</li>
+                                            <li>修复PC端网页缩放异常</li>
+                                            <li>迁移图床</li>
                                         </ul>
                                     </div>
                                     <div class="update-item">
@@ -275,9 +278,6 @@
                             onclick="switchStatsTab('collection')">游戏图鉴</div>
                         <div class="nav-item animate-float-in" style="animation-delay: 0.15s;"
                             onclick="switchStatsTab('sponsors')">打赏列表
-                        </div>
-                        <div class="nav-item animate-float-in" style="animation-delay: 0.2s;" id="nav-maps"
-                            onclick="switchStatsTab('maps')">地图图片</div>
                     </nav>
                 </div>
 
@@ -532,26 +532,6 @@
                             <div id="sponsor-list"
                                 style="display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:1.25rem; align-items:stretch;">
                                 <!-- JS populated sponsors -->
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Maps Tab -->
-                    <div id="maps-tab" class="hidden" style="width:100%;">
-                        <div class="master-section" style="width:100%;">
-                            <div class="master-section-header animate-float-in"
-                                style="justify-content:space-between; animation-delay: 0.1s;">
-                                <div style="display:flex; align-items:center; gap:0.75rem;">
-                                    <div class="master-indicator" style="background:#10b981;"></div>
-                                    <div class="master-title" style="color:#10b981;">官方地图图鉴
-                                        <span
-                                            style="font-size: 0.85rem; color: #9ca3af; font-weight: normal; margin-left: 12px; opacity: 0.8;">素材来源：逆战未来工具箱小程序</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div id="maps-list"
-                                style="display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:1.25rem; align-items:stretch; padding-top: 1rem;">
-                                <!-- JS populated maps -->
                             </div>
                         </div>
                     </div>

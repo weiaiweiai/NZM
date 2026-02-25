@@ -1,5 +1,5 @@
 import { state, pollState } from './state.js';
-import { dom, switchView, showError, showCookieExpiredModal, showGroupPopup, switchStatsTab, renderSponsors, showLogoutModal, renderMapGallery } from './ui_components.js';
+import { dom, switchView, showError, showCookieExpiredModal, showGroupPopup, switchStatsTab, renderSponsors, showLogoutModal } from './ui_components.js';
 import { api, clearApiCache } from './api.js';
 import { startQRLogin, startWxQRLogin, checkQR, checkWxQR, switchLoginMethod } from './auth_manager.js';
 import { renderStats, renderMatchHistory, getModeByMapId, calculateRecentBossDamage } from './stats_renderer.js';
@@ -14,7 +14,7 @@ function updateDashboard() {
 
     dom.updateAccountInfo(state.userProfile || {});
     dom.updateOfficialSummary(data.officialSummary || {});
-    renderMapGallery(data.gameList || []);
+
 }
 
 // --- Initialization ---
@@ -22,7 +22,7 @@ async function init() {
     dom.initLauncherTabs();
     bindEvents();
     renderSponsors();
-    renderMapGallery(state.data?.gameList || []);
+
     if (state.cookie) {
         switchStatsTab('stats');
         await loadStats();
@@ -237,7 +237,9 @@ async function loadCollection() {
             renderWeapons(json.data.weapons);
             renderTraps(json.data.traps);
             renderPlugins(json.data.plugins);
-            if (json.data.weaponSummary) dom.weaponCount.textContent = `(${json.data.weaponSummary.owned}/${json.data.weaponSummary.total})`;
+            if (json.data.weaponSummary && dom.weaponCount) {
+                dom.weaponCount.textContent = `(${json.data.weaponSummary.owned}/${json.data.weaponSummary.total})`;
+            }
         }
     } catch (e) {
         console.error('Failed to load collection:', e);

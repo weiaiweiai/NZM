@@ -1,3 +1,5 @@
+import IMG_MAP from './img_map.js';
+
 // Collection APIs for testing
 const HEADERS = {
     'Host': 'comm.ams.game.qq.com',
@@ -22,6 +24,16 @@ function buildBody(method, param) {
     return new URLSearchParams(params).toString();
 }
 
+// === Image URL Rewrite Helper ===
+function rewriteUrls(list) {
+    if (!list || !Array.isArray(list)) return list;
+    return list.map(item => {
+        if (item.pic && IMG_MAP[item.pic]) item.pic = IMG_MAP[item.pic];
+        if (item.icon && IMG_MAP[item.icon]) item.icon = IMG_MAP[item.icon];
+        return item;
+    });
+}
+
 // 武器图鉴
 async function fetchWeaponCollection(cookie) {
     const cleanCookie = normalizeCookie(cookie);
@@ -29,7 +41,7 @@ async function fetchWeaponCollection(cookie) {
     try {
         const res = await fetch(API_URL, { method: 'POST', headers: { ...HEADERS, 'Cookie': cleanCookie }, body });
         const data = await res.json();
-        return data.jData?.data?.data?.list || null;
+        return rewriteUrls(data.jData?.data?.data?.list) || null;
     } catch (e) { return { error: e.message }; }
 }
 
@@ -40,7 +52,7 @@ async function fetchTrapCollection(cookie) {
     try {
         const res = await fetch(API_URL, { method: 'POST', headers: { ...HEADERS, 'Cookie': cleanCookie }, body });
         const data = await res.json();
-        return data.jData?.data?.data?.list || null;
+        return rewriteUrls(data.jData?.data?.data?.list) || null;
     } catch (e) { return { error: e.message }; }
 }
 
@@ -51,7 +63,7 @@ async function fetchPluginCollection(cookie) {
     try {
         const res = await fetch(API_URL, { method: 'POST', headers: { ...HEADERS, 'Cookie': cleanCookie }, body });
         const data = await res.json();
-        return data.jData?.data?.data?.list || null;
+        return rewriteUrls(data.jData?.data?.data?.list) || null;
     } catch (e) { return { error: e.message }; }
 }
 
@@ -62,8 +74,7 @@ async function fetchCollectionHome(cookie) {
     try {
         const res = await fetch(API_URL, { method: 'POST', headers: { ...HEADERS, 'Cookie': cleanCookie }, body });
         const data = await res.json();
-        // 返回 weaponList 字段
-        return data.jData?.data?.data?.weaponList || null;
+        return rewriteUrls(data.jData?.data?.data?.weaponList) || null;
     } catch (e) { return { error: e.message }; }
 }
 

@@ -1,3 +1,5 @@
+import IMG_MAP from './img_map.js';
+
 const HEADERS = {
     'Host': 'comm.ams.game.qq.com',
     'Content-Type': 'application/x-www-form-urlencoded',
@@ -26,28 +28,28 @@ const LOCAL_CONFIG = {
         "9": { "id": 9, "name": "折磨IV" }
     },
     mapInfo: {
-        "1000": { "id": 1000, "name": "风暴峡谷", "mode": "机甲非对称", "icon": "https://nzm.playerhub.qq.com/playerhub/60106/maps/maps-1000.png" },
-        "1001": { "id": 1001, "name": "风暴峡谷", "mode": "机甲非对称", "icon": "https://nzm.playerhub.qq.com/playerhub/60106/maps/maps-1001.png" },
-        "1002": { "id": 1002, "name": "凯旋之地", "mode": "机甲非对称", "icon": "https://nzm.playerhub.qq.com/playerhub/60106/maps/maps-1002.png" },
-        "112": { "id": 112, "name": "黑暗复活节", "mode": "猎场竞速", "icon": "https://nzm.playerhub.qq.com/playerhub/60106/maps/maps-112.png" },
-        "114": { "id": 114, "name": "大都会", "mode": "猎场竞速", "icon": "https://nzm.playerhub.qq.com/playerhub/60106/maps/maps-114.png" },
-        "115": { "id": 115, "name": "冰点源起", "mode": "猎场竞速", "icon": "https://nzm.playerhub.qq.com/playerhub/60106/maps/maps-115.png" },
-        "12": { "id": 12, "name": "黑暗复活节", "mode": "猎场", "icon": "https://nzm.playerhub.qq.com/playerhub/60106/maps/maps-12.png" },
-        "132": { "id": 132, "name": "飓风要塞-风暴行动--BOSS撕咬", "mode": "副本", "icon": "https://nzm.playerhub.qq.com/playerhub/60106/maps/maps-132.png" },
-        "135": { "id": 135, "name": "太空电梯上/苍穹之上--BOSS护盾壁垒", "mode": "副本", "icon": "https://nzm.playerhub.qq.com/playerhub/60106/maps/maps-135.png" },
-        "14": { "id": 14, "name": "大都会", "mode": "猎场", "icon": "https://nzm.playerhub.qq.com/playerhub/60106/maps/maps-14.png" },
-        "16": { "id": 16, "name": "昆仑神宫", "mode": "猎场", "icon": "https://nzm.playerhub.qq.com/playerhub/60106/maps/maps-16.png" },
-        "17": { "id": 17, "name": "精绝古城", "mode": "猎场", "icon": "https://nzm.playerhub.qq.com/playerhub/60106/maps/maps-17.png" },
-        "21": { "id": 21, "name": "冰点源起", "mode": "猎场", "icon": "https://nzm.playerhub.qq.com/playerhub/60106/maps/maps-21.png" },
-        "30": { "id": 30, "name": "猎场-新手关", "mode": "猎场", "icon": "https://nzm.playerhub.qq.com/playerhub/60106/maps/maps-30.png" },
-        "300": { "id": 300, "name": "空间站", "mode": "塔防", "icon": "https://nzm.playerhub.qq.com/playerhub/60106/maps/maps-300.png" },
-        "304": { "id": 304, "name": "20号星港", "mode": "塔防", "icon": "https://nzm.playerhub.qq.com/playerhub/60106/maps/maps-304.png" },
-        "306": { "id": 306, "name": "联盟大厦", "mode": "塔防", "icon": "https://nzm.playerhub.qq.com/playerhub/60106/maps/maps-306.png" },
-        "308": { "id": 308, "name": "塔防-新手关", "mode": "塔防", "icon": "https://nzm.playerhub.qq.com/playerhub/60106/maps/maps-308.png" },
-        "321": { "id": 321, "name": "根除变异", "mode": "时空追猎", "icon": "https://nzm.playerhub.qq.com/playerhub/60106/maps/maps-321.png" },
-        "322": { "id": 322, "name": "夺回资料", "mode": "时空追猎", "icon": "https://nzm.playerhub.qq.com/playerhub/60106/maps/maps-322.png" },
-        "323": { "id": 323, "name": "猎杀南十字", "mode": "时空追猎", "icon": "https://nzm.playerhub.qq.com/playerhub/60106/maps/maps-323.png" },
-        "324": { "id": 324, "name": "追猎-新手关", "mode": "时空追猎", "icon": "https://nzm.playerhub.qq.com/playerhub/60106/maps/maps-324.png" }
+        "1000": { "id": 1000, "name": "风暴峡谷", "mode": "机甲非对称", "icon": "https://img.haman.uk/maps/maps-1000.webp" },
+        "1001": { "id": 1001, "name": "风暴峡谷", "mode": "机甲非对称", "icon": "https://img.haman.uk/maps/maps-1001.webp" },
+        "1002": { "id": 1002, "name": "凯旋之地", "mode": "机甲非对称", "icon": "https://img.haman.uk/maps/maps-1002.webp" },
+        "112": { "id": 112, "name": "黑暗复活节", "mode": "猎场竞速", "icon": "https://img.haman.uk/maps/maps-112.webp" },
+        "114": { "id": 114, "name": "大都会", "mode": "猎场竞速", "icon": "https://img.haman.uk/maps/maps-114.webp" },
+        "115": { "id": 115, "name": "冰点源起", "mode": "猎场竞速", "icon": "https://img.haman.uk/maps/maps-115.webp" },
+        "12": { "id": 12, "name": "黑暗复活节", "mode": "猎场", "icon": "https://img.haman.uk/maps/maps-12.webp" },
+        "132": { "id": 132, "name": "飓风要塞-风暴行动--BOSS撕咬", "mode": "副本", "icon": "https://img.haman.uk/maps/maps-132.webp" },
+        "135": { "id": 135, "name": "太空电梯上/苍穹之上--BOSS护盾壁垒", "mode": "副本", "icon": "https://img.haman.uk/maps/maps-135.webp" },
+        "14": { "id": 14, "name": "大都会", "mode": "猎场", "icon": "https://img.haman.uk/maps/maps-14.webp" },
+        "16": { "id": 16, "name": "昆仑神宫", "mode": "猎场", "icon": "https://img.haman.uk/maps/maps-16.webp" },
+        "17": { "id": 17, "name": "精绝古城", "mode": "猎场", "icon": "https://img.haman.uk/maps/maps-17.webp" },
+        "21": { "id": 21, "name": "冰点源起", "mode": "猎场", "icon": "https://img.haman.uk/maps/maps-21.webp" },
+        "30": { "id": 30, "name": "猎场-新手关", "mode": "猎场", "icon": "https://img.haman.uk/maps/maps-30.webp" },
+        "300": { "id": 300, "name": "空间站", "mode": "塔防", "icon": "https://img.haman.uk/maps/maps-300.webp" },
+        "304": { "id": 304, "name": "20号星港", "mode": "塔防", "icon": "https://img.haman.uk/maps/maps-304.webp" },
+        "306": { "id": 306, "name": "联盟大厦", "mode": "塔防", "icon": "https://img.haman.uk/maps/maps-306.webp" },
+        "308": { "id": 308, "name": "塔防-新手关", "mode": "塔防", "icon": "https://img.haman.uk/maps/maps-308.webp" },
+        "321": { "id": 321, "name": "根除变异", "mode": "时空追猎", "icon": "https://img.haman.uk/maps/maps-321.webp" },
+        "322": { "id": 322, "name": "夺回资料", "mode": "时空追猎", "icon": "https://img.haman.uk/maps/maps-322.webp" },
+        "323": { "id": 323, "name": "猎杀南十字", "mode": "时空追猎", "icon": "https://img.haman.uk/maps/maps-323.webp" },
+        "324": { "id": 324, "name": "追猎-新手关", "mode": "时空追猎", "icon": "https://img.haman.uk/maps/maps-324.webp" }
     }
 };
 
@@ -232,14 +234,21 @@ export async function handleStats(request) {
         icon: mapInfo[g.iMapId]?.icon || ''
     }));
 
-    return new Response(JSON.stringify({
+    let resStr = JSON.stringify({
         success: true,
         data: {
             ...calculated,
             officialSummary: summary,
             gameList: gameList
         }
-    }), { headers: { 'Content-Type': 'application/json' } });
+    });
+
+    // Replace all matching image URLs using IMG_MAP
+    resStr = resStr.replace(/"(https:\/\/nzm\.playerhub\.qq\.com\/[^"]+\.PNG)"/gi, (match, p1) => {
+        return '"' + (IMG_MAP[p1] || p1) + '"';
+    });
+
+    return new Response(resStr, { headers: { 'Content-Type': 'application/json' } });
 }
 
 export async function handleDetail(request) {
@@ -251,5 +260,12 @@ export async function handleDetail(request) {
     if (!roomId) return new Response('Missing room_id', { status: 400 });
 
     const detail = await fetchGameDetail(cookie, roomId);
-    return new Response(JSON.stringify({ success: true, data: detail }), { headers: { 'Content-Type': 'application/json' } });
+    let resStr = JSON.stringify({ success: true, data: detail });
+
+    // Replace all matching image URLs using IMG_MAP
+    resStr = resStr.replace(/"(https:\/\/nzm\.playerhub\.qq\.com\/[^"]+\.PNG)"/gi, (match, p1) => {
+        return '"' + (IMG_MAP[p1] || p1) + '"';
+    });
+
+    return new Response(resStr, { headers: { 'Content-Type': 'application/json' } });
 }
