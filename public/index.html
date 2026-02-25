@@ -36,14 +36,19 @@
                             <div id="panel-info" class="info-content-panel active">
                                 <h3>关于本工具</h3>
                                 <div class="info-content-text">
-                                    <p>本项目是一个基于 Cloudflare Workers 构建的轻量级 Web 应用，用于查看《逆战：未来》的游戏统计数据</p>
+                                    <p>本项目是一个基于 Cloudflare Workers 构建的轻量级 Web 应用，用于统计《逆战未来工具箱小程序》中的数据</p>
                                     <p style="color: #ef4444; font-weight: bold; margin-top: 12px;">重要公告</p>
                                     <p style="color: #fca5a5;">
                                         官方近期对小程序接口做了安全升级，将令牌与签发应用做了强绑定校验</p>
                                     <p style="color: #fca5a5;">通过第三方网页扫码获取的令牌已无法通过官方验证</p>
-                                    <p style="color: #fca5a5;">QQ / 微信扫码登录功能已失效</p>
+                                    <p style="color: #fbbf24; font-size: 0.9em; margin-top: 4px;">(注：上述第三方网页为-逆战未来官网
+                                        nzm.qq.com)</p>
                                     <p style="color: #fca5a5;">目前仅支持通过抓包工具从微信小程序中提取 Cookie 后手动粘贴登录</p>
-                                    <p style="color: #e2f8ff;">这不是我的错，也不是你的问题</p>
+                                    <p style="color: #fca5a5;">这不是我的错，也不是你的问题</p>
+                                    <p style="color: #e2f8ff;">一键获取Cookie的工具:
+                                        <a href="https://haman.lanzoul.com/iMfSh3j7u62d" target="_blank"
+                                            style="color: #60fa8e; text-decoration: underline;">前往下载</a>
+                                    </p>
                                     <p style="color: #ef4444; font-weight: bold; margin-top: 15px;">
                                         所有数据均来自逆战未来工具箱小程序，且本站并非游戏官方网站！</p>
                                 </div>
@@ -54,17 +59,19 @@
                                 <h3>更新日志</h3>
                                 <div class="info-content-text">
                                     <div class="update-item">
-                                        <span class="update-date">2026.02.25</span>
+                                        <span class="update-date">2026.02.26</span>
                                         <ul>
-                                            <li>添加上海阿里云登录节点</li>
-                                            <li>修复PC端网页缩放异常</li>
-                                            <li>迁移图床</li>
+                                            <li>移除扫码登录</li>
+                                            <li>添加Cookie登录</li>
                                         </ul>
                                     </div>
                                     <div class="update-item">
-                                        <span class="update-date">2026.02.26</span>
+                                        <span class="update-date">2026.02.25</span>
                                         <ul>
                                             <li>重构移动端网页显示</li>
+                                            <li>添加上海阿里云登录节点</li>
+                                            <li>修复PC端网页缩放异常</li>
+                                            <li>迁移图床</li>
                                         </ul>
                                     </div>
                                     <div class="update-item">
@@ -90,14 +97,19 @@
                                 <h3>关于盗号/封号说明</h3>
                                 <div class="security-text">
                                     <div class="security-qa">
-                                        <p><strong>Q: 为什么会显示异地登录？</strong><br>
-                                            A: 因为本项目部署在 Cloudflare 全球边缘网络，扫码时的授权请求是通过 CF 节点转发的。这在 QQ 安全中心看来属于正常现象</p>
+                                        <p><strong>Q: 为什么现在改成 Cookie 登录了？</strong><br>
+                                            A: 官方近期加强了安全验证，禁用了第三方网页扫码获取的Cookie，为了工具能继续使用，目前只能妥协，改用手动提供 Cookie 的方式。<br>
+                                            <span
+                                                style="color: #fbbf24; font-size: 0.9em; display: inline-block; margin-top: 4px;">(注：上述第三方网页为-逆战未来官网
+                                                nzm.qq.com)</span>
+                                        </p>
 
-                                        <p><strong>Q: 源码安全吗？</strong><br>
-                                            A: 项目完全开源在 GitHub，您可以随时审查每一行代码。如果您仍有顾虑，完全可以下载源码自行在本地部署运行</p>
+                                        <p><strong>Q: 提供 Cookie 安全吗？会被盗号吗？</strong><br>
+                                            A: 项目完全开源在 GitHub，只会在你查询时使用 Cookie
+                                            调用官方数据接口，绝不会收集保存或用于其他用途。如果您仍有顾虑，完全可以下载源码自行在本地部署运行。</p>
 
                                         <p><strong>Q: 会有封号风险吗？</strong><br>
-                                            A: 本工具仅调用官方开放的数据读取接口，不涉及任何游戏内存修改或作弊功能，与官方小程序原理一致</p>
+                                            A: 本工具仅调用官方开放的数据读取接口，不涉及任何游戏内存修改或作弊功能，与官方小程序原理一致。</p>
 
                                         <p style="color: #ef4444; font-weight: bold; margin-top: 2rem;">
                                             长个嘴一张一闭就是要盗号封号，开源你是完全看不到，等你老了等我给你推销保健品
@@ -207,7 +219,7 @@
                             <!-- Manual Cookie Login Container -->
                             <div id="cookie-login-container" class="login-box active">
                                 <div class="cookie-paste-area">
-                                    <p class="cookie-hint">从微信小程序抓包获取 Cookie 后粘贴到下方：</p>
+                                    <p class="cookie-hint">从微信小程序获取到Cookie后粘贴到下方</p>
                                     <textarea id="cookie-input"
                                         placeholder="openid=xxx; acctype=qc; appid=1112451898; access_token=xxx"
                                         rows="4"></textarea>
@@ -222,6 +234,8 @@
                                 <p style="margin: 0 0 6px 0;">官方近期对小程序 API
                                     做了安全升级，<strong>将令牌（Token）与签发应用做了强绑定校验</strong>。通过第三方网页扫码获取的令牌已无法通过官方接口验证，导致 QQ /
                                     微信扫码登录功能彻底失效。</p>
+                                <p style="margin: 0 0 8px 0; color: #fbbf24; font-weight: bold;">(注：上述第三方网页为逆战未来官网
+                                    nzm.qq.com)</p>
                                 <p style="margin: 0;">目前仅支持通过抓包工具（Fiddler 等）从<strong>微信小程序</strong>中提取 Cookie
                                     后手动粘贴登录。对此带来的不便深表歉意。</p>
                             </div>
