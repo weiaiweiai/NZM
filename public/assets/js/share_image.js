@@ -62,10 +62,10 @@ export async function generateShareImage(btnElement) {
 
             // Optional: Background image for the whole share card just like the previous canvas approach
             const bgPool = [
-                'https://nzm.playerhub.qq.com/playerhub/60106/maps/maps-14.png',
-                'https://nzm.playerhub.qq.com/playerhub/60106/maps/maps-12.png',
-                'https://nzm.playerhub.qq.com/playerhub/60106/maps/maps-16.png',
-                'https://nzm.playerhub.qq.com/playerhub/60106/maps/maps-17.png'
+                'https://img.haman.uk/maps/maps-14.webp',
+                'https://img.haman.uk/maps/maps-12.webp',
+                'https://img.haman.uk/maps/maps-16.webp',
+                'https://img.haman.uk/maps/maps-17.webp'
             ];
             if (d.gameList) {
                 const mapsWithIcons = d.gameList.filter(g => g.icon);
@@ -75,6 +75,8 @@ export async function generateShareImage(btnElement) {
             }
             const randomBg = bgPool[Math.floor(Math.random() * bgPool.length)];
 
+            const bgFetchPromises = [];
+
             if (randomBg) {
                 const bgImgDiv = document.createElement('div');
                 bgImgDiv.style.position = 'absolute';
@@ -82,15 +84,27 @@ export async function generateShareImage(btnElement) {
                 bgImgDiv.style.left = '0';
                 bgImgDiv.style.width = '100%';
                 bgImgDiv.style.height = '100%';
-
-                // Using background CSS properties prevents stretching issues in html2canvas
-                bgImgDiv.style.backgroundImage = `url(${randomBg})`;
+                bgImgDiv.style.zIndex = '0';
+                bgImgDiv.style.overflow = 'hidden';
+                bgImgDiv.style.background = '#111827';
                 bgImgDiv.style.backgroundSize = 'cover';
                 bgImgDiv.style.backgroundPosition = 'center';
-                bgImgDiv.style.backgroundRepeat = 'no-repeat';
-
                 bgImgDiv.style.opacity = '0.35'; // Darken the background
-                bgImgDiv.style.zIndex = '0';
+
+                const p1 = fetch(`${randomBg}?cors=${Date.now()}`, { mode: 'cors' })
+                    .then(res => res.blob())
+                    .then(blob => new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onloadend = () => resolve(reader.result);
+                        reader.onerror = reject;
+                        reader.readAsDataURL(blob);
+                    }))
+                    .then(dataUrl => {
+                        bgImgDiv.style.backgroundImage = `url("${dataUrl}")`;
+                    })
+                    .catch(e => console.warn('Global bg fetch failed:', e));
+                bgFetchPromises.push(p1);
+
                 bgWrapper.appendChild(bgImgDiv);
             }
 
@@ -150,21 +164,39 @@ export async function generateShareImage(btnElement) {
                         style.backgroundColor = 'rgba(31, 31, 35, 0.85)';
                         style.background = 'rgba(31, 31, 35, 0.85)';
                     } else {
-                        // Map cards should rely entirely on their image layer
-                        style.background = 'transparent';
-                        style.backgroundColor = 'transparent';
+                        // Map cards need a solid dark backing since html2canvas doesn't do backdrop-filter
+                        style.background = 'rgba(17, 24, 39, 0.95)';
+                        style.backgroundColor = 'rgba(17, 24, 39, 0.95)';
                         style.boxShadow = 'none'; // Optional: remove shadow if it causes dark aura
                     }
                 }
 
                 // CRITICAL: Ensure the map image itself is fully solid so it doesn't mix with global bg.
-                // ALSO add a dark gradient overlay to ensure the bright white text remains readable 
+                // ALSO add a dark gradient overlay to ensure the bright white text remains readable
                 // since we removed the dark matte-card background from underneath it.
                 if (el.classList.contains('map-bg-layer')) {
-                    style.opacity = '1';
+                    style.opacity = '0.45'; // Faded enough to read white text
                     const currentBg = style.backgroundImage;
                     if (currentBg && currentBg !== 'none') {
-                        style.backgroundImage = `linear-gradient(to right, rgba(17, 24, 39, 0.95) 0%, rgba(17, 24, 39, 0.4) 100%), ${currentBg}`;
+                        // Extract URL from 'url("...url...")'
+                        const urlMatch = currentBg.match(/url\(['"]?(.*?)['"]?\)/);
+                        if (urlMatch && urlMatch[1]) {
+                            // Fetch map bg as Data URI
+                            const p = fetch(`${urlMatch[1]}?cors=${Date.now()}`, { mode: 'cors' })
+                                .then(res => res.blob())
+                                .then(blob => new Promise((resolve, reject) => {
+                                    const reader = new FileReader();
+                                    reader.onloadend = () => resolve(reader.result);
+                                    reader.onerror = reject;
+                                    reader.readAsDataURL(blob);
+                                }))
+                                .then(dataUrl => {
+                                    style.backgroundImage = `url("${dataUrl}")`;
+                                })
+                                .catch(e => console.warn('Map bg fetch failed:', e));
+
+                            bgFetchPromises.push(p);
+                        }
                     }
                 }
 
@@ -176,7 +208,7 @@ export async function generateShareImage(btnElement) {
             });
 
             // Adjust grid explicitly if external CSS isn't perfectly applied
-            // Since we append to body, the launcher.css applies. 
+            // Since we append to body, the launcher.css applies.
             // We just ensure width is strictly 800px max (720px inner)
             cloneNode.style.width = '100%';
 
@@ -200,13 +232,19 @@ export async function generateShareImage(btnElement) {
             container.appendChild(bgWrapper);
             document.body.appendChild(container);
 
-            // 7. Wait for images to load explicitly inside the clone
+            // Wait for all CSS background fetches to resolve and apply Data URIs
+            await Promise.all(bgFetchPromises);
+
+            // 7. Wait for images to load explicitly inside the clone and set CORS rules
             const images = container.querySelectorAll('img');
             const imagePromises = Array.from(images).map(img => {
                 if (img.complete) return Promise.resolve();
-                return new Promise(resolve => {
+                return new Promise((resolve) => {
                     img.onload = resolve;
-                    img.onerror = resolve; // Continue even if one fails
+                    img.onerror = () => {
+                        console.warn('Failed to load image for share card:', img.src);
+                        resolve(); // Resolve anyway so we don't freeze the canvas generation
+                    };
                 });
             });
             await Promise.all(imagePromises);

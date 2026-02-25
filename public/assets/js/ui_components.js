@@ -26,7 +26,6 @@ export const dom = {
     get collectionTab() { return document.getElementById('collection-tab'); },
     get sponsorsTab() { return document.getElementById('sponsors-tab'); },
     get historyTab() { return document.getElementById('history-tab'); },
-    get mapsTab() { return document.getElementById('maps-tab'); },
 
     // Stats content
     get statsContent() { return document.getElementById('stats-content'); },
@@ -282,7 +281,7 @@ export function switchStatsTab(tabId, onSwitch) {
     if (dom.collectionTab) dom.collectionTab.classList.add('hidden');
     if (dom.sponsorsTab) dom.sponsorsTab.classList.add('hidden');
     if (dom.historyTab) dom.historyTab.classList.add('hidden');
-    if (dom.mapsTab) dom.mapsTab.classList.add('hidden');
+
 
     // Show selected tab
     if (tabId === 'stats' && dom.statsTab) {
@@ -294,9 +293,6 @@ export function switchStatsTab(tabId, onSwitch) {
         renderSponsors();
     } else if (tabId === 'history' && dom.historyTab) {
         dom.historyTab.classList.remove('hidden');
-    } else if (tabId === 'maps' && dom.mapsTab) {
-        dom.mapsTab.classList.remove('hidden');
-        renderMapGallery();
     }
 
     // Reset scroll position for the container
@@ -306,60 +302,9 @@ export function switchStatsTab(tabId, onSwitch) {
     if (onSwitch) onSwitch(tabId);
 }
 
-
 // Window global for inline onclick
 window.switchStatsTab = switchStatsTab;
 
-const officialMaps = [
-    { name: "黑暗复活节", url: "https://nzm.playerhub.qq.com/playerhub/60106/maps/maps-12.png" },
-    { name: "飓风要塞-风暴行动", url: "https://nzm.playerhub.qq.com/playerhub/60106/maps/maps-132.png" },
-    { name: "太空电梯-苍穹之上", url: "https://nzm.playerhub.qq.com/playerhub/60106/maps/maps-135.png" },
-    { name: "大都会", url: "https://nzm.playerhub.qq.com/playerhub/60106/maps/maps-14.png" },
-    { name: "昆仑神宫", url: "https://nzm.playerhub.qq.com/playerhub/60106/maps/maps-16.png" },
-    { name: "精绝古城", url: "https://nzm.playerhub.qq.com/playerhub/60106/maps/maps-17.png" },
-    { name: "冰点源起", url: "https://nzm.playerhub.qq.com/playerhub/60106/maps/maps-21.png" },
-    { name: "空间站", url: "https://nzm.playerhub.qq.com/playerhub/60106/maps/maps-300.png" },
-    { name: "20号星港", url: "https://nzm.playerhub.qq.com/playerhub/60106/maps/maps-304.png" },
-    { name: "联盟大厦", url: "https://nzm.playerhub.qq.com/playerhub/60106/maps/maps-306.png" },
-    { name: "根除变异", url: "https://nzm.playerhub.qq.com/playerhub/60106/maps/maps-321.png" },
-    { name: "夺回资料", url: "https://nzm.playerhub.qq.com/playerhub/60106/maps/maps-322.png" },
-    { name: "猎杀南十字", url: "https://nzm.playerhub.qq.com/playerhub/60106/maps/maps-323.png" }
-];
-
-export function renderMapGallery(apiGameList = []) {
-    const list = document.getElementById('maps-list');
-    if (!list) return;
-
-    // Dynamically build list combining static base maps + whatever the official API returned in match history
-    const mapDict = new Map();
-
-    // Add base official maps
-    officialMaps.forEach(m => mapDict.set(m.name, m.url));
-
-    // Extract detailed unique maps from user's history payload, skipping known non-map items
-    if (Array.isArray(apiGameList)) {
-        apiGameList.forEach(g => {
-            if (g.mapName && g.icon && g.icon.endsWith('.png') && !g.mapName.includes('引导') && !g.mapName.includes('训练')) {
-                // Use standard regex to clean off bracketed difficulty suffixes like (英雄) from the name
-                const cleanName = g.mapName.replace(/\(.*?\)|（.*?）/g, '').trim();
-                mapDict.set(cleanName, g.icon);
-            }
-        });
-    }
-
-    // Convert back to array of objects
-    const finalMaps = Array.from(mapDict.entries()).map(([name, url]) => ({ name, url }));
-
-    list.innerHTML = finalMaps.map((map, i) => `
-        <div class="matte-card" style="display: flex; flex-direction: column; overflow: hidden; animation: cardFloatIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; animation-delay: ${Math.min(i, 20) * 0.05}s;">
-            <div style="width: 100%; height: 180px; background-image: url('${map.url}'); background-size: cover; background-position: center;"></div>
-            <div style="padding: 16px; background: rgba(0,0,0,0.3); display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.05);">
-                <span class="value" style="font-size:1.1rem; color:#fff; font-weight:bold; margin: 0;">${map.name}</span>
-                <a href="${map.url}" target="_blank" download="${map.name}.png" style="background: rgba(16, 185, 129, 0.2); border: 1px solid #10b981; color: #10b981; padding: 6px 16px; border-radius: 6px; text-decoration: none; font-size: 0.85rem; font-weight: bold; transition: all 0.2s;" onmouseover="this.style.background='#10b981'; this.style.color='#fff';" onmouseout="this.style.background='rgba(16, 185, 129, 0.2)'; this.style.color='#10b981';">下载原图</a>
-            </div>
-        </div>
-    `).join('');
-}
 
 // Sponsor Logic
 const sponsorsData = [
