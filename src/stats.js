@@ -2,9 +2,11 @@ import IMG_MAP from './img_map.js';
 
 const HEADERS = {
     'Host': 'comm.ams.game.qq.com',
-    'Content-Type': 'application/x-www-form-urlencoded',
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36 MicroMessenger/7.0.20.1781(0x6700143B)',
-    'Referer': 'https://servicewechat.com/wx4e8cbe4fb0eca54c/9/page-frame.html',
+    'Content-Type': 'application/x-www-form-urlencoded;',
+    'Accept': '*/*',
+    'Accept-Language': 'zh-CN,zh;q=0.9',
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36 MicroMessenger/7.0.20.1781(0x6700143B) NetType/WIFI MiniProgramEnv/Windows WindowsWechat/WMPF WindowsWechat(0x63090a13) UnifiedPCWindowsWechat(0xf254171e) XWEB/18787',
+    'Referer': 'https://servicewechat.com/wx4e8cbe4fb0eca54c/13/page-frame.html',
     'xweb_xhr': '1',
 };
 const API_URL = 'https://comm.ams.game.qq.com/ide/';
@@ -54,13 +56,16 @@ const LOCAL_CONFIG = {
 };
 
 function normalizeCookie(cookie) {
-    return (cookie || '').replace(/[\r\n]/g, '').trim();
+    let clean = (cookie || '').replace(/[\r\n]/g, '').trim();
+    // Force upgrade old OAuth AppIDs to the new Mini-Program AppID 
+    clean = clean.replace(/appid=[^;]*/, 'appid=1112451898');
+    return clean;
 }
 
-function buildBody(method, param) {
+function buildBody(method, param, customEasUrl = 'http://wechatmini.qq.com/-/-/pages/recordinfo/recordinfo/') {
     const params = {
         iChartId: '430662', iSubChartId: '430662', sIdeToken: 'NoOapI',
-        eas_url: 'http://wechatmini.qq.com/-/-/pages/record/record/',
+        eas_url: customEasUrl,
         method: method, from_source: '2',
         param: JSON.stringify(param),
     };
@@ -69,11 +74,10 @@ function buildBody(method, param) {
 
 async function fetchUserSummary(cookie) {
     const cleanCookie = normalizeCookie(cookie);
-    const body = buildBody('center.user.stats', { seasonID: 1 });
+    // User stats uses record/record
+    const body = buildBody('center.user.stats', { seasonID: 1 }, 'http://wechatmini.qq.com/-/-/pages/record/record/');
     try {
-        console.log(`[Stats] Fetching user summary with cookie length: ${cleanCookie.length}`);
-        // console.log(`[Stats] Cookie: ${cleanCookie}`); // Caution: logs sensitive token
-
+        console.log(`[Stats] Fetching user summary...`);
         const res = await fetch(API_URL, { method: 'POST', headers: { ...HEADERS, 'Cookie': cleanCookie }, body });
         const data = await res.json();
 
@@ -91,7 +95,8 @@ async function fetchUserSummary(cookie) {
 
 async function fetchGameList(cookie, page = 1) {
     const cleanCookie = normalizeCookie(cookie);
-    const body = buildBody('center.user.game.list', { seasonID: 1, page, limit: 10 });
+    // Note: The game list still uses record/record
+    const body = buildBody('center.user.game.list', { seasonID: 1, page, limit: 10 }, 'http://wechatmini.qq.com/-/-/pages/record/record/');
     try {
         const res = await fetch(API_URL, { method: 'POST', headers: { ...HEADERS, 'Cookie': cleanCookie }, body });
         const data = await res.json();
@@ -111,7 +116,8 @@ async function fetchAllGames(cookie, maxPages = 10) {
 
 async function fetchConfig(cookie) {
     const cleanCookie = normalizeCookie(cookie);
-    const body = buildBody('center.user.game.config', { seasonID: 1 });
+    // Config uses recordinfo and a new method name
+    const body = buildBody('center.config.list', { seasonID: 1, configType: 'all' }, 'http://wechatmini.qq.com/-/-/pages/recordinfo/recordinfo/');
     try {
         const res = await fetch(API_URL, { method: 'POST', headers: { ...HEADERS, 'Cookie': cleanCookie }, body });
         const data = await res.json();
@@ -121,7 +127,7 @@ async function fetchConfig(cookie) {
 
 async function fetchGameDetail(cookie, roomId) {
     const cleanCookie = normalizeCookie(cookie);
-    const body = buildBody('center.game.detail', { seasonID: 1, roomID: roomId });
+    const body = buildBody('center.game.detail', { seasonID: 1, roomID: roomId }, 'http://wechatmini.qq.com/-/-/pages/recordinfo/recordinfo/');
     try {
         const res = await fetch(API_URL, { method: 'POST', headers: { ...HEADERS, 'Cookie': cleanCookie }, body });
         const data = await res.json();
