@@ -8,17 +8,27 @@ export async function generateShareImage(btnElement) {
         return;
     }
 
-    if (!window.html2canvas) {
-        alert('图片生成库仍在加载中，请稍后再试');
-        return;
-    }
+    // Remove static check, we will lazy load it
+    // if (!window.html2canvas) { ... }
 
     if (btnElement) {
         btnElement.disabled = true;
         const originalText = btnElement.textContent;
-        btnElement.textContent = '生成中...';
+        btnElement.textContent = '加载引擎...';
 
         try {
+            // Lazy load html2canvas to avoid 429 rate limit on page load
+            if (!window.html2canvas) {
+                await new Promise((resolve, reject) => {
+                    const script = document.createElement('script');
+                    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+                    script.onload = resolve;
+                    script.onerror = () => reject(new Error('截图引擎加载失败，请检查网络'));
+                    document.head.appendChild(script);
+                });
+            }
+
+            btnElement.textContent = '生成中...';
             const d = state.data;
 
             // 1. Fetch User Info from latest match
