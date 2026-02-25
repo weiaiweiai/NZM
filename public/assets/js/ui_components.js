@@ -1,24 +1,25 @@
 export const dom = {
-    loginView: document.getElementById('login-view'),
-    statsView: document.getElementById('stats-view'),
-    qrImg: document.getElementById('qr-img'),
-    qrStatus: document.getElementById('qr-status'),
-    qrLoading: document.getElementById('qr-loading'),
-    qrWrapper: document.querySelector('.qr-wrapper'),
-    // Launcher Elements
-    launcherTabs: document.querySelectorAll('.launcher-tab'),
-    infoPanels: document.querySelectorAll('.info-content-panel'),
-    qqContainer: document.getElementById('qr-login-container'),
-    wechatContainer: document.getElementById('wechat-login-container'),
+    get loginView() { return document.getElementById('login-view'); },
+    get statsView() { return document.getElementById('stats-view'); },
+    get qrImg() { return document.getElementById('qr-img'); },
+    get qrStatus() { return document.getElementById('qr-status'); },
+    get qrLoading() { return document.getElementById('qr-loading'); },
+    get qrWrapper() { return document.querySelector('.qr-wrapper'); },
 
-    logoutBtn: document.getElementById('logout-btn'),
-    loading: document.getElementById('loading'),
-    errorMsg: document.getElementById('error-msg'),
-    qrOverlay: document.getElementById('qr-overlay'),
-    wxQrOverlay: document.getElementById('wx-qr-overlay'),
-    qqRefreshBtn: document.getElementById('qq-refresh-btn'),
-    wxRefreshBtn: document.getElementById('wx-refresh-btn'),
-    wxQrStatus: document.getElementById('wx-qr-status'),
+    // Launcher Elements
+    get launcherTabs() { return document.querySelectorAll('.launcher-tab'); },
+    get infoPanels() { return document.querySelectorAll('.info-content-panel'); },
+    get qqContainer() { return document.getElementById('qr-login-container'); },
+    get wechatContainer() { return document.getElementById('wechat-login-container'); },
+
+    get logoutBtn() { return document.getElementById('logout-btn'); },
+    get loading() { return document.getElementById('loading'); },
+    get errorMsg() { return document.getElementById('error-msg'); },
+    get qrOverlay() { return document.getElementById('qr-overlay'); },
+    get wxQrOverlay() { return document.getElementById('wx-qr-overlay'); },
+    get qqRefreshBtn() { return document.getElementById('qq-refresh-btn'); },
+    get wxRefreshBtn() { return document.getElementById('wx-refresh-btn'); },
+    get wxQrStatus() { return document.getElementById('wx-qr-status'); },
 
     // Tabs
     get statsTab() { return document.getElementById('stats-tab'); },
@@ -28,16 +29,16 @@ export const dom = {
     get mapsTab() { return document.getElementById('maps-tab'); },
 
     // Stats content
-    statsContent: document.getElementById('stats-content'),
-    modeStats: document.getElementById('mode-stats'),
-    mapStats: document.getElementById('map-stats'),
-    matchHistory: document.getElementById('match-history'),
-    pageInfo: document.getElementById('page-info'),
-    prevPage: document.getElementById('prev-page'),
-    nextPage: document.getElementById('next-page'),
+    get statsContent() { return document.getElementById('stats-content'); },
+    get modeStats() { return document.getElementById('mode-stats'); },
+    get mapStats() { return document.getElementById('map-stats'); },
+    get matchHistory() { return document.getElementById('match-history'); },
+    get pageInfo() { return document.getElementById('page-info'); },
+    get prevPage() { return document.getElementById('prev-page'); },
+    get nextPage() { return document.getElementById('next-page'); },
 
     // Fragment sidebar
-    fragmentList: document.getElementById('fragment-list'),
+    get fragmentList() { return document.getElementById('fragment-list'); },
 
     // Collection grids
     get weaponGrid() { return document.getElementById('weapon-grid'); },
@@ -48,21 +49,41 @@ export const dom = {
     get pluginCount() { return document.getElementById('plugin-count'); },
 
     // Official Summary
-    offHuntGames: document.getElementById('off-hunt-games'),
-    offTowerGames: document.getElementById('off-tower-games'),
-    offRankGames: document.getElementById('off-rank-games'),
-    offChaseGames: document.getElementById('off-chase-games'),
-    offPlayTime: document.getElementById('off-play-time'),
-    recentGames: document.getElementById('recent-games'),
-    recentWin: document.getElementById('recent-win'),
-    recentDmg: document.getElementById('recent-dmg'),
-    recentBossDmg: document.getElementById('recent-boss'),
+    get offHuntGames() { return document.getElementById('off-hunt-games'); },
+    get offTowerGames() { return document.getElementById('off-tower-games'); },
+    get offRankGames() { return document.getElementById('off-rank-games'); },
+    get offChaseGames() { return document.getElementById('off-chase-games'); },
+    get offPlayTime() { return document.getElementById('off-play-time'); },
+    get recentGames() { return document.getElementById('recent-games'); },
+    get recentWin() { return document.getElementById('recent-win'); },
+    get recentDmg() { return document.getElementById('recent-dmg'); },
+    get recentBossDmg() { return document.getElementById('recent-boss'); },
 
     // Sidebar Elements
-    navItems: document.querySelectorAll('.nav-item'),
-    themeToggle: document.getElementById('theme-toggle'),
+    get navItems() { return document.querySelectorAll('.nav-item'); },
+    get themeToggle() { return document.getElementById('theme-toggle'); },
+
+    // Missing update methods called in main.js
+    updateAccountInfo(profile) {
+        // Placeholder for future profile implementation if elements are added
+        console.log('[UI] updateAccountInfo called', profile);
+    },
+
+    updateOfficialSummary(summary) {
+        if (this.offHuntGames) this.offHuntGames.textContent = summary.huntGameCount || '-';
+        if (this.offTowerGames) this.offTowerGames.textContent = summary.towerGameCount || '-';
+        if (this.offRankGames) this.offRankGames.textContent = summary.mechaGameCount || '-';
+        if (this.offChaseGames) this.offChaseGames.textContent = summary.timeHuntGameCount || '-';
+        if (this.offPlayTime) {
+            this.offPlayTime.textContent = summary.playtime ? `${Math.floor(summary.playtime / 60)}时` : '-';
+        }
+    },
 
     initLauncherTabs() {
+        // Elements to toggle on mobile
+        const loginSide = document.querySelector('.launcher-login-side');
+        const infoSide = document.querySelector('.launcher-info-side');
+
         this.launcherTabs.forEach(tab => {
             tab.addEventListener('click', () => {
                 const targetPanel = tab.getAttribute('data-launcher-tab');
@@ -71,7 +92,32 @@ export const dom = {
                 this.infoPanels.forEach(p => p.classList.remove('active'));
                 const panel = document.getElementById(`panel-${targetPanel}`);
                 if (panel) panel.classList.add('active');
+
+                // Mobile specific tab toggling
+                if (window.innerWidth <= 1024) { // Match CSS breakpoint 1024px
+                    if (targetPanel === 'info') {
+                        // "同步登录" tab clicked on mobile
+                        if (loginSide) loginSide.style.display = 'block';
+                        if (infoSide) infoSide.style.display = 'none';
+                    } else {
+                        // Other info tabs (updates, security, etc.) clicked
+                        if (loginSide) loginSide.style.display = 'none';
+                        if (infoSide) infoSide.style.display = 'block';
+                    }
+                } else {
+                    // Reset to desktop default in case of resize or on larger screens
+                    if (loginSide) loginSide.style.display = '';
+                    if (infoSide) infoSide.style.display = '';
+                }
             });
+        });
+
+        // Window resize listener to reset visibility
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 1024) {
+                if (loginSide) loginSide.style.display = '';
+                if (infoSide) infoSide.style.display = '';
+            }
         });
     }
 };
@@ -223,6 +269,14 @@ export function switchStatsTab(tabId, onSwitch) {
         }
     });
 
+    // Auto-close sidebar on mobile after clicking
+    if (window.innerWidth <= 768) {
+        const sidebar = document.querySelector('.stats-sidebar');
+        const overlay = document.getElementById('mobile-sidebar-overlay');
+        if (sidebar) sidebar.classList.remove('mobile-open');
+        if (overlay) overlay.classList.remove('active');
+    }
+
     // Hide all tabs first
     if (dom.statsTab) dom.statsTab.classList.add('hidden');
     if (dom.collectionTab) dom.collectionTab.classList.add('hidden');
@@ -341,16 +395,17 @@ export function renderSponsors() {
         columns = gridStyle.gridTemplateColumns.split(' ').length || 1;
     }
 
-    // The user requested exactly '13 rows' per page
-    const sponsorsPerPage = columns * 13;
+    // Mobile: 10 rows, PC: 15 rows
+    const rowsPerPage = window.innerWidth <= 768 ? 10 : 15;
+    const sponsorsPerPage = columns * rowsPerPage;
 
     const start = (currentSponsorPage - 1) * sponsorsPerPage;
     const end = start + sponsorsPerPage;
     const pageData = sponsorsData.slice(start, end);
 
     list.innerHTML = pageData.map((name, i) =>
-        `<div class="matte-card" style="display:flex; flex-direction:row; align-items:center; justify-content:center; padding:1.25rem 1.5rem; gap:16px; animation: cardFloatIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; animation-delay: ${Math.min(i, 100) * 0.02}s;">
-            <span class="value" style="font-size:1.1rem; color:var(--text-main); font-weight:600;">${name}</span>
+        `<div class="matte-card" style="display:flex; flex-direction:row; align-items:center; justify-content:center; padding:0.75rem 1rem; animation: cardFloatIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; animation-delay: ${Math.min(i, 40) * 0.02}s;">
+            <span class="value" style="font-size:0.95rem; color:var(--text-main); font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${name}</span>
         </div>`
     ).join('');
 

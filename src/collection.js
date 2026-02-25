@@ -75,33 +75,37 @@ export async function handleCollection(request) {
     const type = url.searchParams.get('type') || 'all';
 
     let result = {};
+    const tasks = [];
 
     if (type === 'all' || type === 'weapon') {
-        result.weapons = await fetchWeaponCollection(cookie);
+        tasks.push(fetchWeaponCollection(cookie).then(data => {
+            result.weapons = data;
+            if (data && Array.isArray(data)) {
+                result.weaponSummary = { total: data.length, owned: data.filter(w => w.owned).length };
+            }
+        }));
     }
     if (type === 'all' || type === 'trap') {
-        result.traps = await fetchTrapCollection(cookie);
+        tasks.push(fetchTrapCollection(cookie).then(data => {
+            result.traps = data;
+            if (data && Array.isArray(data)) {
+                result.trapSummary = { total: data.length, owned: data.filter(t => t.owned).length };
+            }
+        }));
     }
     if (type === 'all' || type === 'plugin') {
-        result.plugins = await fetchPluginCollection(cookie);
+        tasks.push(fetchPluginCollection(cookie).then(data => {
+            result.plugins = data;
+            if (data && Array.isArray(data)) {
+                result.pluginSummary = { total: data.length, owned: data.filter(p => p.owned).length };
+            }
+        }));
     }
     if (type === 'all' || type === 'home') {
-        result.home = await fetchCollectionHome(cookie);
+        tasks.push(fetchCollectionHome(cookie).then(data => result.home = data));
     }
 
-    // Calculate summary
-    if (result.weapons) {
-        const owned = result.weapons.filter(w => w.owned).length;
-        result.weaponSummary = { total: result.weapons.length, owned };
-    }
-    if (result.traps) {
-        const owned = result.traps.filter(t => t.owned).length;
-        result.trapSummary = { total: result.traps.length, owned };
-    }
-    if (result.plugins) {
-        const owned = result.plugins.filter(p => p.owned).length;
-        result.pluginSummary = { total: result.plugins.length, owned };
-    }
+    await Promise.all(tasks);
 
     return new Response(JSON.stringify({ success: true, data: result }), {
         headers: { 'Content-Type': 'application/json' }

@@ -184,9 +184,8 @@ export async function handleStats(request) {
     const cookie = request.headers.get('X-NZM-Cookie');
     if (!cookie) return new Response('Missing Cookie', { status: 401 });
 
-    const [summaryRes, config, rawGames] = await Promise.all([
+    const [summaryRes, rawGames] = await Promise.all([
         fetchUserSummary(cookie),
-        fetchConfig(cookie),
         fetchAllGames(cookie, 10)
     ]);
 
@@ -208,8 +207,9 @@ export async function handleStats(request) {
         }), { headers: { 'Content-Type': 'application/json' } });
     }
 
-    const mapInfo = { ...LOCAL_CONFIG.mapInfo, ...(config?.mapInfo || {}) };
-    const diffInfo = { ...LOCAL_CONFIG.difficultyInfo, ...(config?.difficultyInfo || {}) };
+    // 直接使用本地配置，省掉一次 fetchConfig 子请求
+    const mapInfo = LOCAL_CONFIG.mapInfo;
+    const diffInfo = LOCAL_CONFIG.difficultyInfo;
 
     const filteredGames = rawGames.filter(g => {
         const mapId = parseInt(g.iMapId);
@@ -222,7 +222,7 @@ export async function handleStats(request) {
         return true;
     });
 
-    const calculated = calculateStats(filteredGames, config);
+    const calculated = calculateStats(filteredGames, null);
 
     const gameList = filteredGames.map(g => ({
         ...g,

@@ -31,15 +31,21 @@ export function renderStats(data) {
     let modeHtml = '';
     let modeIdx = 0;
     for (const [m, info] of Object.entries(data.modeStats)) {
+        let displayName = m;
+        if (m === '猎场') displayName = '僵尸猎场';
+        if (m === '追猎') displayName = '时空追猎';
+
         const rate = info.total > 0 ? ((info.win / info.total) * 100).toFixed(1) : 0;
         modeHtml += `
-            <div class="matte-card" style="animation: cardFloatIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; animation-delay: ${0.5 + (Math.min(modeIdx, 60) * 0.04)}s;">
-                <div class="label">${m}</div>
-                <div class="value">${info.total} <small style="font-size:0.8rem; font-weight:normal; opacity:0.6;">场</small></div>
-                <div class="details" style="display:flex; gap:1rem; font-size:0.9rem; margin-top:0.5rem;">
-                    <span style="color:var(--success);">通关 ${info.win}</span>
-                    <span style="color:var(--danger);">未通关 ${info.loss}</span>
-                    <span style="color:var(--text-dim);">${rate}%</span>
+            <div class="matte-card mode-stat-card" style="animation: cardFloatIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; animation-delay: ${0.5 + (Math.min(modeIdx, 60) * 0.04)}s;">
+                <div class="label" style="font-weight:bold; color: var(--text-main); font-size: 1rem; opacity: 0.8; margin-bottom: 4px;">${displayName}</div>
+                <div class="value" style="display: flex; align-items: baseline; gap: 6px; margin-bottom: 8px;">
+                    ${info.total} <small style="font-size:0.9rem; font-weight:normal; color: var(--text-dim);">场</small>
+                </div>
+                <div style="display:flex; gap:10px; font-size:0.85rem; color:var(--text-dim); margin-top: auto;">
+                    <span style="color:var(--success); font-weight: 500;">通关 ${info.win}</span>
+                    <span style="color:var(--danger); font-weight: 500;">未通关 ${info.loss}</span>
+                    <span style="opacity: 0.7;">${rate}%</span>
                 </div>
             </div>`;
         modeIdx++;
@@ -151,21 +157,39 @@ export function renderMatchHistory(gameList) {
     dom.matchHistory.querySelectorAll('.match-item').forEach(item => {
         item.addEventListener('click', async (e) => {
             if (e.target.closest('.match-details')) return;
-            item.classList.toggle('expanded');
-            if (item.classList.contains('expanded')) {
-                const roomId = item.dataset.roomid;
-                const mode = item.dataset.mode;
-                const detailContainer = document.getElementById(`detail-${roomId}`);
-                if (detailContainer && !detailContainer.dataset.loaded) {
-                    detailContainer.innerHTML = '<div style="text-align:center;padding:1rem;">正在加载...</div>';
+            const roomId = item.dataset.roomid;
+            const mode = item.dataset.mode;
+
+            if (window.innerWidth <= 768) {
+                // Mobile: slide-in detail page
+                const matchInfo = {
+                    result: item.classList.contains('win') ? '胜利' : '失败',
+                    isWin: item.classList.contains('win'),
+                    mode: mode,
+                    mapName: item.querySelector('.match-map-name')?.textContent || '',
+                    date: item.querySelector('.match-date')?.textContent || '',
+                    score: item.querySelector('.match-score-text')?.textContent || '',
+                    duration: item.querySelector('.match-duration-text')?.textContent || '',
+                    thumb: item.querySelector('.match-thumb')?.src || ''
+                };
+                openMatchDetail(roomId, mode, matchInfo);
+            } else {
+                // PC: original inline expand/collapse
+                const detailEl = item.querySelector('.match-details');
+                if (!detailEl) return;
+                const isExpanded = item.classList.toggle('expanded');
+                if (isExpanded && !detailEl.dataset.loaded) {
+                    detailEl.innerHTML = '<div style="text-align:center; padding:1rem; color:#94a3b8;">正在加载...</div>';
                     try {
                         const json = await api.getMatchDetail(roomId);
                         if (json.success && json.data) {
-                            renderMatchDetail(json.data, detailContainer, mode);
-                            detailContainer.dataset.loaded = 'true';
+                            renderMatchDetail(json.data, detailEl, mode);
+                            detailEl.dataset.loaded = '1';
+                        } else {
+                            detailEl.innerHTML = '<div style="text-align:center;color:#ff4444;padding:1rem;">加载失败</div>';
                         }
-                    } catch (e) {
-                        detailContainer.innerHTML = `<div style="text-align:center;color:#ff4444">加载失败</div>`;
+                    } catch (err) {
+                        detailEl.innerHTML = `<div style="text-align:center;color:#ff4444;padding:1rem;">加载失败: ${err.message}</div>`;
                     }
                 }
             }
@@ -174,6 +198,83 @@ export function renderMatchHistory(gameList) {
 
     updatePagination(totalPages);
 }
+
+// ============ Match Detail Slide Page ============
+let savedScrollPosition = 0;
+
+async function openMatchDetail(roomId, mode, matchInfo) {
+    const page = document.getElementById('match-detail-page');
+    const summaryEl = document.getElementById('match-detail-summary');
+    const contentEl = document.getElementById('match-detail-content');
+    if (!page || !summaryEl || !contentEl) return;
+
+    // Move to body to escape backdrop-filter stacking context (fixes scroll sync bug)
+    if (page.parentNode !== document.body) {
+        document.body.appendChild(page);
+    }
+
+    // Lock body scroll to prevent overscroll revealing background
+    document.body.style.overflow = 'hidden';
+
+    // Save list scroll position
+    const scrollContainer = document.querySelector('.stats-main-layout');
+    if (scrollContainer) savedScrollPosition = scrollContainer.scrollTop;
+
+    // Reset detail page scroll to top
+    page.scrollTop = 0;
+
+    // Render summary header
+    const resultColor = matchInfo.isWin ? '#10b981' : '#ef4444';
+    summaryEl.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <img src="${matchInfo.thumb}" style="width: 80px; height: 48px; object-fit: cover; border-radius: 6px; background: #333; flex-shrink: 0;">
+            <div style="flex: 1;">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                    <span style="color: ${resultColor}; font-weight: 900; font-size: 1.1rem;">${matchInfo.result}</span>
+                    <span style="color: #ef4444; font-size: 0.95rem;">${matchInfo.mode}</span>
+                </div>
+                <div style="color: #cbd5e1; font-size: 0.85rem;">${matchInfo.mapName} · ${matchInfo.date}</div>
+            </div>
+            <div style="text-align: right; flex-shrink: 0;">
+                <div style="color: #ef4444; font-family: 'Impact', sans-serif; font-size: 1.2rem; letter-spacing: 1px;">${matchInfo.score}</div>
+                <div style="color: #f1f5f9; font-size: 0.85rem; font-weight: bold;">${matchInfo.duration}</div>
+            </div>
+        </div>`;
+
+    // Show loading state
+    contentEl.innerHTML = '<div style="text-align:center; padding: 3rem 1rem; color: #94a3b8;">正在加载对局详情...</div>';
+
+    // Slide in
+    page.classList.add('active');
+
+    // Fetch detail data
+    try {
+        const json = await api.getMatchDetail(roomId);
+        if (json.success && json.data) {
+            renderMatchDetail(json.data, contentEl, mode);
+        } else {
+            contentEl.innerHTML = '<div style="text-align:center; color:#ff4444; padding: 2rem;">加载失败</div>';
+        }
+    } catch (e) {
+        contentEl.innerHTML = `<div style="text-align:center; color:#ff4444; padding: 2rem;">加载失败: ${e.message || '网络错误'}</div>`;
+    }
+}
+
+function closeMatchDetail() {
+    const page = document.getElementById('match-detail-page');
+    if (!page) return;
+    page.classList.remove('active');
+
+    // Restore body scroll
+    document.body.style.overflow = '';
+
+    // Restore scroll position after animation completes
+    setTimeout(() => {
+        const scrollContainer = document.querySelector('.stats-main-layout');
+        if (scrollContainer) scrollContainer.scrollTop = savedScrollPosition;
+    }, 350);
+}
+window.closeMatchDetail = closeMatchDetail;
 
 export function updatePagination(totalPages) {
     if (!dom.pageInfo) return;
@@ -185,22 +286,43 @@ export function updatePagination(totalPages) {
 function renderCheckpointTimes(partitionDetails) {
     if (!partitionDetails || partitionDetails.length === 0) return '';
     const sortedCheckpoints = [...partitionDetails].sort((a, b) => parseInt(a.areaId) - parseInt(b.areaId));
+
+    // Mobile Layout: Horizontally scrollable cards
+    if (window.innerWidth <= 768) {
+        const checkpointsHtml = sortedCheckpoints.map((checkpoint, i) => {
+            const areaName = CHECKPOINT_AREAS[checkpoint.areaId] || `区域${checkpoint.areaId}`;
+            const usedTime = parseInt(checkpoint.usedTime) || 0;
+            const timeStr = usedTime > 60 ? `${Math.floor(usedTime / 60)}分${usedTime % 60}秒` : `${usedTime}秒`;
+            return `<div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 6px 12px; display: flex; flex-direction: column; align-items: center; flex-shrink: 0; animation: cardFloatIn 0.4s ease forwards; opacity: 0; animation-delay: ${i * 0.04}s;">
+                <div style="color: #10b981; font-size: 0.72rem; white-space: nowrap;">${areaName}</div>
+                <div style="color: #e2e8f0; font-weight: bold; font-size: 0.9rem; white-space: nowrap; margin-top: 2px;">${timeStr}</div>
+            </div>`;
+        }).join('');
+        return `<div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 10px 12px; margin-bottom: 10px;">
+            <div style="font-size: 0.72rem; color: #64748b; font-weight: bold; letter-spacing: 0.06em; margin-bottom: 8px;">区域用时</div>
+            <div style="display: flex; flex-wrap: nowrap; gap: 6px; overflow-x: auto;">${checkpointsHtml}</div>
+        </div>`;
+    }
+
+    // PC Layout: Large bordered cards (as shown in screenshot)
     const checkpointsHtml = sortedCheckpoints.map((checkpoint, i) => {
-        const areaName = CHECKPOINT_AREAS[checkpoint.areaId] || `未知环节(${checkpoint.areaId})`;
+        const areaName = CHECKPOINT_AREAS[checkpoint.areaId] || `区域${checkpoint.areaId}`;
         const usedTime = parseInt(checkpoint.usedTime) || 0;
         const timeStr = usedTime > 60 ? `${Math.floor(usedTime / 60)}分${usedTime % 60}秒` : `${usedTime}秒`;
-        return `<div class="matte-card" style="padding: 10px 16px; text-align: center; flex: 1; min-width: 100px; animation: cardFloatIn 0.5s ease forwards; opacity: 0; animation-delay: ${i * 0.05}s;">
-            <div style="color: #10b981; font-size: 0.95rem; margin-bottom: 4px; font-weight: bold;">${areaName}</div>
-            <div style="color: #e2e8f0; font-weight: bold; font-size: 1.1rem;">${timeStr}</div>
-        </div>`;
+        return `
+            <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 80px; animation: cardFloatIn 0.4s ease forwards; opacity: 0; animation-delay: ${i * 0.04}s;">
+                <div style="color: #10b981; font-size: 0.85rem; white-space: nowrap; margin-bottom: 4px;">${areaName}</div>
+                <div style="color: #e2e8f0; font-weight: bold; font-size: 1.1rem; white-space: nowrap;">${timeStr}</div>
+            </div>`;
     }).join('');
-    return `<div class="matte-card" style="padding: 16px; margin-bottom: 12px;">
-        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
-            <div style="width: 4px; height: 18px; border-radius: 2px; background: #3b82f6;"></div>
-            <span style="color: #e2e8f0; font-weight: bold; font-size: 1rem;">区域用时</span>
-        </div>
-        <div style="display: flex; flex-wrap: wrap; gap: 8px;">${checkpointsHtml}</div>
-    </div>`;
+
+    return `
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 14px 16px; margin-bottom: 12px;">
+            <div style="font-size: 0.85rem; color: #64748b; font-weight: bold; letter-spacing: 0.06em; margin-bottom: 12px;">区域用时</div>
+            <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                ${checkpointsHtml}
+            </div>
+        </div>`;
 }
 
 function renderEquipmentCompact(equipmentScheme, pluginsPerRow = 2) {
@@ -253,12 +375,37 @@ export function toggleMatchDetailView(btn) {
 window.toggleMatchDetailView = toggleMatchDetailView;
 
 function renderMatchDetail(data, container, mode) {
+    if (window.innerWidth <= 768) {
+        renderMatchDetailMobile(data, container, mode);
+    } else {
+        renderMatchDetailPC(data, container, mode);
+    }
+}
+
+function renderMatchDetailMobile(data, container, mode) {
+    const self = data.loginUserDetail;
+    const teammates = (data.list || []).filter(p => p.nickname !== self.nickname);
+    const showExtra = mode !== '塔防战' && mode !== '时空追猎';
+
+    const selfData = { ...self, _isSelf: true };
+    const allPlayers = [selfData, ...teammates];
+    allPlayers.sort((a, b) => (parseInt(b.baseDetail.iScore) || 0) - (parseInt(a.baseDetail.iScore) || 0));
+
+    let checkpointHtml = (self.huntingDetails?.partitionDetails?.length > 0)
+        ? renderCheckpointTimes(self.huntingDetails.partitionDetails) : '';
+
+    const playersHtml = allPlayers.map((p, idx) => playerCardHtml(p, idx, showExtra, p._isSelf)).join('');
+    container.innerHTML = checkpointHtml +
+        `<div style="display: flex; flex-direction: column; gap: 8px; margin-top: 4px;">${playersHtml}</div>`;
+}
+
+function renderMatchDetailPC(data, container, mode) {
     const self = data.loginUserDetail;
     const teammates = (data.list || []).filter(p => p.nickname !== self.nickname);
     teammates.sort((a, b) => (parseInt(b.baseDetail.iScore) || 0) - (parseInt(a.baseDetail.iScore) || 0));
-
     const showExtra = mode !== '塔防战' && mode !== '时空追猎';
-    let checkpointHtml = (self.huntingDetails?.partitionDetails?.length > 0) ? renderCheckpointTimes(self.huntingDetails.partitionDetails) : '';
+    let checkpointHtml = (self.huntingDetails?.partitionDetails?.length > 0)
+        ? renderCheckpointTimes(self.huntingDetails.partitionDetails) : '';
 
     const globalToggleHtml = `
         <div style="display:flex; justify-content:center; margin-bottom:12px;">
@@ -267,14 +414,7 @@ function renderMatchDetail(data, container, mode) {
             </button>
         </div>`;
 
-    let playersHtml = teammateHtml(teammates, showExtra);
-    let selfHtml = selfPlayerHtml(self, showExtra);
-
-    container.innerHTML = checkpointHtml + globalToggleHtml + '<div class="player-list" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 10px; margin-top: 0.5rem;">' + playersHtml + '</div>' + selfHtml;
-}
-
-function teammateHtml(teammates, showExtra) {
-    return teammates.map((p, idx) => {
+    const teammatesHtml = teammates.map((p, idx) => {
         const info = p.baseDetail;
         const hunt = p.huntingDetails || {};
         const hasExtra = showExtra && ((hunt.damageTotalOnBoss || hunt.DamageTotalOnBoss) > 0 || (hunt.damageTotalOnMobs || hunt.DamageTotalOnMobs) > 0);
@@ -286,17 +426,11 @@ function teammateHtml(teammates, showExtra) {
                         <img src="${decodeURIComponent(p.avatar)}" style="width:44px; height:44px; border-radius:50%; object-fit:cover; background:#333; flex-shrink:0;" onerror="this.src='images/maps-304.png'">
                         <div style="display:flex; flex-direction:column; overflow:hidden; flex:1;">
                             <div style="font-weight:bold; font-size:1.1rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:0.25rem;">${decodeURIComponent(p.nickname)}</div>
-                            <div style="display:flex; flex-direction:column; gap:0.25rem; width:100%;">
-                                <div style="display:flex; gap:1rem; font-size:1.05rem; flex-wrap:wrap;">
-                                    <span>积分: ${formatNumber(info.iScore)}</span>
-                                    <span>击杀: ${info.iKills}</span>
-                                    <span>死亡: ${info.iDeaths}</span>
-                                </div>
-                                ${hasExtra ? `<div style="display:flex; gap:1rem; font-size:0.95rem; color:var(--text-dim); border-top:1px solid rgba(255,255,255,0.1); padding-top:0.25rem; margin-top:0.25rem; flex-wrap:wrap;">
-                                    <span>Boss: <span style="color:#ef4444;">${formatNumber(hunt.damageTotalOnBoss || hunt.DamageTotalOnBoss || 0)}</span></span>
-                                    <span>小怪: <span style="color:#10b981;">${formatNumber(hunt.damageTotalOnMobs || hunt.DamageTotalOnMobs || 0)}</span></span>
-                                    <span>金币: <span style="color:#d4a84b;">${formatNumber(hunt.totalCoin || 0)}</span></span>
-                                </div>` : ''}
+                            <div style="display:flex; gap:1rem; font-size:1.05rem; flex-wrap:wrap;">
+                                <span>积分: ${formatNumber(info.iScore)}</span>
+                                <span>击杀: ${info.iKills}</span>
+                                <span>死亡: ${info.iDeaths}</span>
+                                ${hasExtra ? `<span style="color:#ef4444;">Boss伤: ${formatNumber(hunt.damageTotalOnBoss || hunt.DamageTotalOnBoss || 0)}</span><span style="color:#10b981;">小怪伤: ${formatNumber(hunt.damageTotalOnMobs || hunt.DamageTotalOnMobs || 0)}</span><span style="color:#d4a84b;">金币: ${formatNumber(hunt.totalCoin || 0)}</span>` : ''}
                             </div>
                         </div>
                     </div>
@@ -310,12 +444,10 @@ function teammateHtml(teammates, showExtra) {
                 </div>
             </div>`;
     }).join('');
-}
 
-function selfPlayerHtml(self, showExtra) {
-    const info = self.baseDetail;
-    const hunt = self.huntingDetails || {};
-    return `
+    const selfInfo = self.baseDetail;
+    const selfHunt = self.huntingDetails || {};
+    const selfHtml = `
         <div class="matte-card" data-player-id="self" style="padding: 16px; margin-top: 1rem; border: 1px solid rgba(99, 102, 241, 0.3); animation: cardFloatIn 0.5s ease forwards; opacity: 0;">
             <div id="stats-self" class="player-view">
                 <div style="display:flex; gap:1rem; align-items:center;">
@@ -324,42 +456,66 @@ function selfPlayerHtml(self, showExtra) {
                         <div style="font-weight:bold; margin-top:0.25rem; font-size:1rem;">${decodeURIComponent(self.nickname)}</div>
                     </div>
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 0.6rem; flex-grow: 1;">
-                        <div class="matte-card" style="padding: 14px; text-align: center;">
-                            <div style="font-size:0.85rem; color:var(--text-dim); text-transform:uppercase;">积分</div>
-                            <div style="font-size:1.5rem; font-weight:bold;">${formatNumber(info.iScore)}</div>
-                        </div>
-                        <div class="matte-card" style="padding: 14px; text-align: center;">
-                            <div style="font-size:0.85rem; color:var(--text-dim); text-transform:uppercase;">击杀</div>
-                            <div style="font-size:1.5rem; font-weight:bold;">${info.iKills}</div>
-                        </div>
-                        <div class="matte-card" style="padding: 14px; text-align: center;">
-                            <div style="font-size:0.85rem; color:var(--text-dim); text-transform:uppercase;">死亡</div>
-                            <div style="font-size:1.5rem; font-weight:bold;">${info.iDeaths}</div>
-                        </div>
+                        <div class="matte-card" style="padding: 14px; text-align: center;"><div style="font-size:0.85rem; color:var(--text-dim);">积分</div><div style="font-size:1.5rem; font-weight:bold;">${formatNumber(selfInfo.iScore)}</div></div>
+                        <div class="matte-card" style="padding: 14px; text-align: center;"><div style="font-size:0.85rem; color:var(--text-dim);">击杀</div><div style="font-size:1.5rem; font-weight:bold;">${selfInfo.iKills}</div></div>
+                        <div class="matte-card" style="padding: 14px; text-align: center;"><div style="font-size:0.85rem; color:var(--text-dim);">死亡</div><div style="font-size:1.5rem; font-weight:bold;">${selfInfo.iDeaths}</div></div>
                         ${showExtra ? `
-                        <div class="matte-card" style="padding: 14px; text-align: center;">
-                            <div style="font-size:0.85rem; color:var(--text-dim); text-transform:uppercase;">Boss伤害</div>
-                            <div style="font-size:1.5rem; font-weight:bold; color:#ef4444;">${formatNumber(hunt.damageTotalOnBoss || hunt.DamageTotalOnBoss || 0)}</div>
-                        </div>
-                        <div class="matte-card" style="padding: 14px; text-align: center;">
-                            <div style="font-size:0.85rem; color:var(--text-dim); text-transform:uppercase;">小怪伤害</div>
-                            <div style="font-size:1.5rem; font-weight:bold; color:#10b981;">${formatNumber(hunt.damageTotalOnMobs || hunt.DamageTotalOnMobs || 0)}</div>
-                        </div>
-                        <div class="matte-card" style="padding: 14px; text-align: center;">
-                            <div style="font-size:0.85rem; color:var(--text-dim); text-transform:uppercase;">金币</div>
-                            <div style="font-size:1.5rem; font-weight:bold; color:#d4a84b;">${formatNumber(hunt.totalCoin || 0)}</div>
-                        </div>
+                        <div class="matte-card" style="padding: 14px; text-align: center;"><div style="font-size:0.85rem; color:var(--text-dim);">Boss伤害</div><div style="font-size:1.5rem; font-weight:bold; color:#ef4444;">${formatNumber(selfHunt.damageTotalOnBoss || selfHunt.DamageTotalOnBoss || 0)}</div></div>
+                        <div class="matte-card" style="padding: 14px; text-align: center;"><div style="font-size:0.85rem; color:var(--text-dim);">小怪伤害</div><div style="font-size:1.5rem; font-weight:bold; color:#10b981;">${formatNumber(selfHunt.damageTotalOnMobs || selfHunt.DamageTotalOnMobs || 0)}</div></div>
+                        <div class="matte-card" style="padding: 14px; text-align: center;"><div style="font-size:0.85rem; color:var(--text-dim);">金币</div><div style="font-size:1.5rem; font-weight:bold; color:#d4a84b;">${formatNumber(selfHunt.totalCoin || 0)}</div></div>
                         ` : ''}
                     </div>
                 </div>
             </div>
             <div id="equipment-self" class="player-view hidden">
-                    <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:10px;">
-                        <img src="${decodeURIComponent(self.avatar)}" style="width:36px; height:36px; border-radius:50%; object-fit:cover; border:2px solid var(--accent);">
-                        <span style="font-weight:bold; font-size:0.95rem;">${decodeURIComponent(self.nickname)}</span>
-                    </div>
-                    ${renderEquipmentCompact(self.equipmentScheme, 4)}
+                <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:10px;">
+                    <img src="${decodeURIComponent(self.avatar)}" style="width:36px; height:36px; border-radius:50%; object-fit:cover; border:2px solid var(--accent);">
+                    <span style="font-weight:bold; font-size:0.95rem;">${decodeURIComponent(self.nickname)}</span>
                 </div>
+                ${renderEquipmentCompact(self.equipmentScheme, 4)}
+            </div>
+        </div>`;
+
+    container.innerHTML = checkpointHtml + globalToggleHtml +
+        '<div class="player-list" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 10px; margin-top: 0.5rem;">' + teammatesHtml + '</div>' + selfHtml;
+}
+
+function playerCardHtml(p, idx, showExtra, isSelf) {
+    const info = p.baseDetail;
+    const hunt = p.huntingDetails || {};
+    const nickname = decodeURIComponent(p.nickname || '');
+    const avatar = decodeURIComponent(p.avatar || '');
+    const selfBorder = isSelf ? 'border: 1px solid rgba(212, 168, 75, 0.5);' : '';
+    const selfLabel = isSelf ? `<span style="font-size:0.7rem; color: #d4a84b; margin-left: 4px;">(我)</span>` : '';
+
+    const stat = (value, label, color = '#e2e8f0') => `
+        <div style="text-align: center; min-width: 50px;">
+            <div style="font-size: 1rem; font-weight: bold; color: ${color}; line-height: 1.2;">${value}</div>
+            <div style="font-size: 0.7rem; color: #64748b; margin-top: 2px;">${label}</div>
+        </div>`;
+
+    const bossDmg = parseInt(hunt.damageTotalOnBoss || hunt.DamageTotalOnBoss || 0);
+    const mobDmg = parseInt(hunt.damageTotalOnMobs || hunt.DamageTotalOnMobs || 0);
+    const coin = parseInt(hunt.totalCoin || 0);
+    const hasExtra = showExtra && (bossDmg > 0 || mobDmg > 0);
+
+    return `
+        <div class="matte-card" style="padding: 12px 14px; ${selfBorder} animation: cardFloatIn 0.4s ease forwards; opacity: 0; animation-delay: ${idx * 0.05}s;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="flex-shrink: 0; text-align: center; width: 52px;">
+                    <img src="${avatar}" style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover; background: #333; ${isSelf ? 'border: 2px solid #d4a84b;' : ''}" onerror="this.src='images/maps-304.png'">
+                    <div style="font-size: 0.72rem; color: ${isSelf ? '#d4a84b' : '#94a3b8'}; margin-top: 3px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; max-width: 52px; word-break: break-all; line-height: 1.3;">${nickname}</div>
+                </div>
+                <div style="flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px 4px; align-items: center;">
+                    ${stat(formatNumber(info.iScore), '积分', '#ffffff')}
+                    ${stat(info.iKills, '击杀', '#ffffff')}
+                    ${stat(info.iDeaths, '死亡', '#ffffff')}
+                    ${hasExtra ? stat(formatNumber(bossDmg), 'Boss伤害', '#ef4444') : (showExtra ? stat('—', 'Boss伤害', '#475569') : '')}
+                    ${hasExtra ? stat(formatNumber(mobDmg), '小怪伤害', '#10b981') : (showExtra ? stat('—', '小怪伤害', '#475569') : '')}
+                    ${showExtra ? stat(coin > 0 ? formatNumber(coin) : '—', '金币', coin > 0 ? '#d4a84b' : '#475569') : ''}
+                </div>
+                <div style="flex-shrink: 0; font-size: 1rem; font-weight: bold; color: ${['#ef4444', '#d4a84b', '#94a3b8', '#7c4a1e'][idx] || '#475569'};">#${idx + 1}</div>
+            </div>
         </div>`;
 }
 

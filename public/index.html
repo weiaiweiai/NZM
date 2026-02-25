@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NZM 数据统计</title>
-    <link rel="stylesheet" href="style.css?v=5">
-    <link rel="stylesheet" href="assets/css/launcher.css">
+    <link rel="stylesheet" href="style.css?v=51">
+    <link rel="stylesheet" href="assets/css/launcher.css?v=51">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <!-- Umami Analytics -->
     <script defer src="http://154.222.30.217:2345/script.js"
@@ -44,6 +44,8 @@
                                     <p>• 微信区：利用官方活动页接口，通过 Milo SDK 转换获得游戏 Cookie</p>
                                     <p><strong>隐私安全</strong></p>
                                     <p>所有敏感数据仅保存在您本地浏览器的缓存中。服务器仅作流量转发，不保存任何用户数据</p>
+                                    <p style="color: #ef4444; font-weight: bold; margin-top: 15px;">所有数据均来自
+                                        逆战未来工具箱小程序，且本站并非游戏官方网站！</p>
                                 </div>
                             </div>
 
@@ -51,6 +53,18 @@
                             <div id="panel-updates" class="info-content-panel">
                                 <h3>更新日志</h3>
                                 <div class="info-content-text">
+                                    <div class="update-item">
+                                        <span class="update-date">2026.02.25</span>
+                                        <ul>
+                                            <li>添加上海阿里云登录节点</li>
+                                        </ul>
+                                    </div>
+                                    <div class="update-item">
+                                        <span class="update-date">2026.02.26</span>
+                                        <ul>
+                                            <li>重构移动端网页显示</li>
+                                        </ul>
+                                    </div>
                                     <div class="update-item">
                                         <span class="update-date">2026.02.23</span>
                                         <ul>
@@ -140,6 +154,19 @@
                                 <div id="method-wechat-tab" class="method-tab">微信登录</div>
                             </div>
 
+                            <!-- Node Selector -->
+                            <div class="node-selector">
+                                <span class="node-label">登录节点：</span>
+                                <div class="node-toggle">
+                                    <div id="node-cf" class="node-btn node-cf active" title="Cloudflare 全球边缘网络">
+                                        <span class="node-dot"></span>Cloudflare
+                                    </div>
+                                    <div id="node-cn" class="node-btn node-cn" title="上海阿里云 (国内节点)">
+                                        <span class="node-dot"></span>上海阿里云
+                                    </div>
+                                </div>
+                            </div>
+
                             <!-- QQ Login Container -->
                             <div id="qr-login-container" class="login-box active">
                                 <div class="qr-wrapper">
@@ -173,6 +200,19 @@
                                     <div id="wx-qr-status" class="login-status-text"></div>
                                 </div>
                             </div>
+
+                            <!-- Login Instructions / Tool Info -->
+                            <div class="login-info-text"
+                                style="margin-top: 20px; font-size: 0.8rem; color: #94a3b8; line-height: 1.6; text-align: left; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+                                <h4 style="color: #fbbf24; margin: 0 0 8px 0; font-size: 0.9rem;">工具原理说明：</h4>
+                                <p style="margin: 0 0 6px 0;"><strong>QQ区：</strong>通过 QQ 互联 (AMS) 官方登录接口，获取游戏授权
+                                    Token，安全请求数据。</p>
+                                <p style="margin: 0;"><strong>微信区：</strong>利用官方活动页微信登录接口，通过 Milo SDK 获得授权 Cookie 数据。</p>
+                                <p style="margin: 6px 0 0 0; color: #10b981;">* 所有凭据仅保留在您的浏览器本地缓存中，服务器不做任何明文记录。</p>
+                                <p style="margin: 8px 0 0 0; color: #ef4444; font-weight: bold;">所有数据均来自
+                                    逆战未来工具箱小程序，且本站并非游戏官方网站！</p>
+                            </div>
+
                         </div>
                     </div>
                 </div>
@@ -181,6 +221,41 @@
 
         <!-- Stats View -->
         <div id="stats-view" class="view hidden stats-main-layout">
+            <!-- Mobile Header (Hidden on PC) -->
+            <div class="mobile-header">
+                <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="3" y1="12" x2="21" y2="12"></line>
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <line x1="3" y1="18" x2="21" y2="18"></line>
+                    </svg>
+                </button>
+                <div class="mobile-header-title">逆战未来数据统计</div>
+                <div style="width: 24px;"></div> <!-- Spacer for flex alignment -->
+            </div>
+
+            <!-- Mobile Sidebar Overlay -->
+            <div id="mobile-sidebar-overlay" class="mobile-sidebar-overlay" onclick="toggleMobileMenu()"></div>
+
+            <script>
+                function toggleMobileMenu() {
+                    const sidebar = document.querySelector('.stats-sidebar');
+                    const overlay = document.getElementById('mobile-sidebar-overlay');
+                    if (sidebar) sidebar.classList.toggle('mobile-open');
+                    if (overlay) overlay.classList.toggle('active');
+                }
+
+                // Close sidebar when a nav item is clicked on mobile
+                document.querySelectorAll('.sidebar-nav .nav-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        if (window.innerWidth <= 768) {
+                            toggleMobileMenu();
+                        }
+                    });
+                });
+            </script>
+
             <!-- Sidebar -->
             <aside class="stats-sidebar">
                 <div class="sidebar-top">
@@ -255,7 +330,7 @@
                                             <button id="gen-share-img-btn" class="header-action-btn">生成分享图</button>
                                         </div>
                                     </div>
-                                    <div class="stats-grid-row">
+                                    <div class="stats-grid-row official-totals">
                                         <div class="matte-card animate-float-in" style="animation-delay: 0.1s;">
                                             <span class="label">僵尸猎场总场次</span>
                                             <span id="off-hunt-games" class="value">-</span>
@@ -301,7 +376,7 @@
                                             <span id="recent-dmg" class="value">-</span>
                                         </div>
                                         <div class="matte-card animate-float-in" style="animation-delay: 0.45s;">
-                                            <span class="label">场均BOSS伤害 (近10场)</span>
+                                            <span class="label">场均BOSS伤害(近10场)</span>
                                             <span id="recent-boss" class="value">-</span>
                                         </div>
                                     </div>
@@ -414,6 +489,27 @@
                                     <button id="next-page" class="matte-btn">下一页</button>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- Match Detail Slide-in Page -->
+                    <div id="match-detail-page" class="match-detail-page">
+                        <div class="match-detail-header">
+                            <button class="match-detail-back-btn" onclick="closeMatchDetail()">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="15 18 9 12 15 6"></polyline>
+                                </svg>
+                                <span>返回</span>
+                            </button>
+                            <div class="match-detail-title">对局详情</div>
+                            <div style="width: 60px;"></div> <!-- Spacer for centering -->
+                        </div>
+                        <div id="match-detail-summary" class="match-detail-summary">
+                            <!-- JS populated match summary -->
+                        </div>
+                        <div id="match-detail-content" class="match-detail-content">
+                            <!-- JS populated detail data -->
                         </div>
                     </div>
 

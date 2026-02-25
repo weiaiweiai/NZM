@@ -1,6 +1,6 @@
 import { state, pollState } from './state.js';
 import { dom, switchView, showError, showCookieExpiredModal, showGroupPopup, switchStatsTab, renderSponsors, showLogoutModal, renderMapGallery } from './ui_components.js';
-import { api } from './api.js';
+import { api, clearApiCache } from './api.js';
 import { startQRLogin, startWxQRLogin, checkQR, checkWxQR, switchLoginMethod } from './auth_manager.js';
 import { renderStats, renderMatchHistory, getModeByMapId, calculateRecentBossDamage } from './stats_renderer.js';
 import { renderWeapons, renderTraps, renderPlugins, renderFragments } from './collection_renderer.js';
@@ -32,11 +32,31 @@ async function init() {
     }
 }
 
+// 切换节点后，根据当前激活的登录方式 (QQ/微信) 重新获取二维码
+function refreshQRForCurrentMethod() {
+    // 停掉所有正在进行的轮询
+    if (pollState.qrTimer) { clearInterval(pollState.qrTimer); pollState.qrTimer = null; }
+    if (pollState.wxQrTimer) { clearInterval(pollState.wxQrTimer); pollState.wxQrTimer = null; }
+    pollState.isQRPollingActive = false;
+    pollState.isWxQRPollingActive = false;
+    pollState.qrSig = '';
+    pollState.wxQrUuid = '';
+
+    // 判断当前是 QQ 还是微信 tab 处于激活状态
+    const wechatTab = document.getElementById('method-wechat-tab');
+    if (wechatTab && wechatTab.classList.contains('active')) {
+        startWxQRLogin();
+    } else {
+        startQRLogin();
+    }
+}
+
 function bindEvents() {
     document.getElementById('refresh-btn')?.addEventListener('click', () => {
         if (state.cookie) {
             document.getElementById('refresh-btn').textContent = '刷新中...';
-            loadStats().then(() => {
+            clearApiCache(); // 清除所有缓存，强制从服务器重新获取
+            loadStats(true).then(() => {
                 document.getElementById('refresh-btn').textContent = '刷新状态';
             });
         }
@@ -44,6 +64,7 @@ function bindEvents() {
 
     dom.logoutBtn?.addEventListener('click', () => {
         showLogoutModal(() => {
+            clearApiCache();
             localStorage.removeItem('nzm_cookie');
             localStorage.removeItem('nzm_login_type');
             location.reload();
@@ -59,6 +80,32 @@ function bindEvents() {
     // Login Method Switching
     document.getElementById('method-qq-tab')?.addEventListener('click', () => switchLoginMethod('qq'));
     document.getElementById('method-wechat-tab')?.addEventListener('click', () => switchLoginMethod('wechat'));
+
+    // Node Selector Switching (5s cooldown)
+    let nodeSwitchCooldown = false;
+    function handleNodeSwitch(activeId, inactiveId) {
+        const activeBtn = document.getElementById(activeId);
+        const inactiveBtn = document.getElementById(inactiveId);
+        if (!activeBtn || activeBtn.classList.contains('active')) return;
+        if (nodeSwitchCooldown) return;
+
+        activeBtn.classList.add('active');
+        inactiveBtn.classList.remove('active');
+        refreshQRForCurrentMethod();
+
+        // 5秒冷却
+        nodeSwitchCooldown = true;
+        const allBtns = document.querySelectorAll('.node-btn');
+        allBtns.forEach(b => b.style.opacity = '0.5');
+        allBtns.forEach(b => b.style.pointerEvents = 'none');
+        setTimeout(() => {
+            nodeSwitchCooldown = false;
+            allBtns.forEach(b => b.style.opacity = '');
+            allBtns.forEach(b => b.style.pointerEvents = '');
+        }, 5000);
+    }
+    document.getElementById('node-cf')?.addEventListener('click', () => handleNodeSwitch('node-cf', 'node-cn'));
+    document.getElementById('node-cn')?.addEventListener('click', () => handleNodeSwitch('node-cn', 'node-cf'));
 
     // Generate Share Image
     const genShareImgBtn = document.getElementById('gen-share-img-btn');
@@ -124,7 +171,7 @@ function bindEvents() {
     });
 }
 
-async function loadStats() {
+async function loadStats(forceRefresh = false) {
     if (!state.cookie) return switchView('login');
 
     switchView('stats');
@@ -132,7 +179,7 @@ async function loadStats() {
     dom.statsContent.classList.add('hidden');
 
     try {
-        const json = await api.getStats();
+        const json = await api.getStats(forceRefresh);
         if (json.success) {
             state.data = json.data;
             renderStats(json.data);
