@@ -1,7 +1,7 @@
 import { state, pollState } from './state.js';
 import { dom, switchView, showError, showCookieExpiredModal, showGroupPopup, switchStatsTab, renderSponsors, showLogoutModal } from './ui_components.js';
 import { api, clearApiCache } from './api.js';
-import { startQRLogin, startWxQRLogin, checkQR, checkWxQR, switchLoginMethod } from './auth_manager.js';
+import { startQRLogin, startWxQRLogin, checkQR, checkWxQR, switchLoginMethod, submitManualCookie } from './auth_manager.js';
 import { renderStats, renderMatchHistory, getModeByMapId, calculateRecentBossDamage } from './stats_renderer.js';
 import { renderWeapons, renderTraps, renderPlugins, renderFragments } from './collection_renderer.js';
 import { ITEMS_PER_PAGE } from './config.js';
@@ -28,7 +28,8 @@ async function init() {
         await loadStats();
     } else {
         switchView('login');
-        startQRLogin();
+        // QR login disabled: Tencent API no longer accepts PC-generated tokens
+        // startQRLogin();
     }
 }
 
@@ -80,6 +81,8 @@ function bindEvents() {
     // Login Method Switching
     document.getElementById('method-qq-tab')?.addEventListener('click', () => switchLoginMethod('qq'));
     document.getElementById('method-wechat-tab')?.addEventListener('click', () => switchLoginMethod('wechat'));
+    document.getElementById('method-cookie-tab')?.addEventListener('click', () => switchLoginMethod('cookie'));
+    document.getElementById('cookie-submit-btn')?.addEventListener('click', submitManualCookie);
 
     // Node Selector Switching (5s cooldown)
     let nodeSwitchCooldown = false;

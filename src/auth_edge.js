@@ -227,7 +227,9 @@ export async function handleAuthCheck(request) {
                     if (result.success) {
                         const tokenData = result.data;
                         const accessToken = tokenData.access_token;
-                        const finalCookie = `acctype=qc; openid=${tokenData.openid}; appid=${pt_3rd_aid}; access_token=${accessToken}`;
+                        // HACK: We authenticate using the PC Web portal AppID (101491592) but the AMS API 
+                        // expects the cookie to report the Mini-Program AppID (1112451898)
+                        const finalCookie = `acctype=qc; openid=${tokenData.openid}; appid=1112451898; access_token=${accessToken}`;
                         return new Response(JSON.stringify({
                             success: true, status: 0, message: '登录成功',
                             data: { cookie: finalCookie }

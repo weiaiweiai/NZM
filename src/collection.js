@@ -3,21 +3,26 @@ import IMG_MAP from './img_map.js';
 // Collection APIs for testing
 const HEADERS = {
     'Host': 'comm.ams.game.qq.com',
-    'Content-Type': 'application/x-www-form-urlencoded',
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36 MicroMessenger/7.0.20.1781(0x6700143B)',
-    'Referer': 'https://servicewechat.com/wx4e8cbe4fb0eca54c/9/page-frame.html',
+    'Content-Type': 'application/x-www-form-urlencoded;',
+    'Accept': '*/*',
+    'Accept-Language': 'zh-CN,zh;q=0.9',
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36 MicroMessenger/7.0.20.1781(0x6700143B) NetType/WIFI MiniProgramEnv/Windows WindowsWechat/WMPF WindowsWechat(0x63090a13) UnifiedPCWindowsWechat(0xf254171e) XWEB/18787',
+    'Referer': 'https://servicewechat.com/wx4e8cbe4fb0eca54c/13/page-frame.html',
     'xweb_xhr': '1',
 };
 const API_URL = 'https://comm.ams.game.qq.com/ide/';
 
 function normalizeCookie(cookie) {
-    return (cookie || '').replace(/[\r\n]/g, '').trim();
+    let clean = (cookie || '').replace(/[\r\n]/g, '').trim();
+    // Force upgrade old OAuth AppIDs to the new Mini-Program AppID 
+    clean = clean.replace(/appid=[^;]*/, 'appid=1112451898');
+    return clean;
 }
 
-function buildBody(method, param) {
+function buildBody(method, param, customEasUrl = 'http://wechatmini.qq.com/-/-/pages/handbook/handbook/') {
     const params = {
         iChartId: '430662', iSubChartId: '430662', sIdeToken: 'NoOapI',
-        eas_url: 'http://wechatmini.qq.com/-/-/pages/handbook/handbook/',
+        eas_url: customEasUrl,
         method: method, from_source: '2',
         param: JSON.stringify(param),
     };

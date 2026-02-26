@@ -167,25 +167,61 @@ export async function checkWxQR() {
 export function switchLoginMethod(method) {
     const qqTab = document.getElementById('method-qq-tab');
     const wechatTab = document.getElementById('method-wechat-tab');
+    const cookieTab = document.getElementById('method-cookie-tab');
     const qqContainer = dom.qqContainer;
     const wechatContainer = dom.wechatContainer;
+    const cookieContainer = document.getElementById('cookie-login-container');
+
+    // Deactivate all tabs and containers
+    [qqTab, wechatTab, cookieTab].forEach(t => t?.classList.remove('active'));
+    [qqContainer, wechatContainer, cookieContainer].forEach(c => c?.classList.remove('active'));
+
+    // Stop all active polling
+    if (pollState.qrTimer) { clearInterval(pollState.qrTimer); pollState.qrTimer = null; }
+    pollState.isQRPollingActive = false;
+    if (pollState.wxQrTimer) { clearInterval(pollState.wxQrTimer); pollState.wxQrTimer = null; }
+    pollState.isWxQRPollingActive = false;
 
     if (method === 'wechat') {
-        if (qqTab) qqTab.classList.remove('active');
-        if (wechatTab) wechatTab.classList.add('active');
-        if (qqContainer) qqContainer.classList.remove('active');
-        if (wechatContainer) wechatContainer.classList.add('active');
-
-        if (pollState.qrTimer) { clearInterval(pollState.qrTimer); pollState.qrTimer = null; }
-        pollState.isQRPollingActive = false;
+        wechatTab?.classList.add('active');
+        wechatContainer?.classList.add('active');
         startWxQRLogin();
+    } else if (method === 'cookie') {
+        cookieTab?.classList.add('active');
+        cookieContainer?.classList.add('active');
     } else {
-        if (wechatTab) wechatTab.classList.remove('active');
-        if (qqTab) qqTab.classList.add('active');
-        if (qqContainer) qqContainer.classList.add('active');
-        if (wechatContainer) wechatContainer.classList.remove('active');
-
-        if (pollState.wxQrTimer) { clearInterval(pollState.wxQrTimer); pollState.wxQrTimer = null; }
-        pollState.isWxQRPollingActive = false;
+        qqTab?.classList.add('active');
+        qqContainer?.classList.add('active');
     }
+}
+
+export function submitManualCookie() {
+    const input = document.getElementById('cookie-input');
+    const status = document.getElementById('cookie-status');
+    const rawCookie = (input?.value || '').trim();
+
+    if (!rawCookie) {
+        if (status) { status.textContent = '请粘贴 Cookie 内容'; status.style.color = '#ef4444'; }
+        return;
+    }
+
+    // Basic validation: must contain openid and access_token
+    if (!rawCookie.includes('openid=') || !rawCookie.includes('access_token=')) {
+        if (status) { status.textContent = 'Cookie 格式不正确，缺少 openid 或 access_token'; status.style.color = '#ef4444'; }
+        return;
+    }
+
+    // Normalize: ensure it has the right format (key=value; key=value)
+    let cookie = rawCookie.replace(/[\r\n]/g, '').trim();
+
+    state.cookie = cookie;
+    localStorage.setItem('nzm_cookie', cookie);
+    localStorage.setItem('nzm_login_type', 'cookie');
+
+    if (status) {
+        status.textContent = 'Cookie 已保存，正在加载数据...';
+        status.style.color = '#10b981';
+    }
+
+    window.dispatchEvent(new CustomEvent('auth:success'));
 }
